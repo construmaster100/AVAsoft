@@ -111,10 +111,11 @@ render();
 /* ---------------------------------------------------------------------- */
 /* Conexión Socket.IO                                                     */
 /* ---------------------------------------------------------------------- */
-// `io` lo expone globalmente /socket.io/socket.io.js (cargado en game.html
-// antes que este módulo) — servido automáticamente por el mismo servidor
-// Express que atiende esta página.
-const socket = io();
+// `io` lo expone globalmente el script de socket.io.js que game.html carga
+// antes que este módulo (por defecto, del mismo servidor Express; si el
+// juego se publicó en un hosting estático, de `window.__SERVER_URL__`).
+// Sin URL explícita, io() usa el mismo origen de la página.
+const socket = io(window.__SERVER_URL__ || undefined);
 
 setConnectionMessage("Conectando al servidor…");
 

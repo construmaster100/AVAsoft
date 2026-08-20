@@ -8,7 +8,9 @@ const connectDB = require("./config/db");
 const attachConnection = require("./sockets/connection");
 
 const app = express();
-const PORT = 3000;
+// Hosts como Render/Railway/Fly asignan el puerto por variable de entorno —
+// si no existe (desarrollo local), usa 3000 como antes.
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());

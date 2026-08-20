@@ -65,7 +65,18 @@
 
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Único lugar para configurar a qué servidor se conecta el juego.
+    // "" = mismo origen que esta página (sirve para desarrollo local con
+    // `node server/server.js`, donde el servidor sirve este mismo HTML).
+    //
+    // Si este HTML se publica en un hosting estático (GitHub Pages, etc.) y
+    // el servidor Node/Socket.IO vive en otro dominio (Render, Railway,
+    // Fly.io...), poné acá la URL completa de ese servidor, por ejemplo:
+    //   window.__SERVER_URL__ = "https://tu-app.onrender.com";
+    window.__SERVER_URL__ = "";
+    document.write('<script src="' + window.__SERVER_URL__ + '/socket.io/socket.io.js"><\/script>');
+  </script>
   <script type="module" src="game.js"></script>
 </body>
 </html>
