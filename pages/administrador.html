@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFIA Plus — Administrador | SGMA-ADSO</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/css/sofia_plus.css">
+  <link rel="stylesheet" href="../assets/css/arbol.css">
+  <link rel="stylesheet" href="../assets/css/sala.css">
+  <link rel="stylesheet" href="../assets/css/analitica.css">
+</head>
+<body data-rol="Administrador">
+
+  <header class="brandbar">
+    <img class="brandbar-banner" src="../assets/img/SENA/banner.png"
+         alt="SENA/Soft — Plataforma virtual de contenidos para la formación profesional">
+    <div class="brandbar-ava">
+      <img class="ava-escudo" src="../assets/img/SENA/logosena.jpeg" alt="Logosímbolo del SENA">
+      <div>
+        <p class="ava-titulo">AVA</p>
+        <p class="ava-sub">Ambiente Virtual<br>De Aprendizaje</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="navbar">
+    <button class="navbar-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral" aria-label="Abrir menú">☰</button>
+    <div class="navbar-user">ADMINISTRADOR</div>
+    <div class="navbar-right">
+      <button class="nav-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#bandejaCorreo" aria-controls="bandejaCorreo">📬 Bandeja de correo<span class="notif-badge">3</span></button>
+      <div class="nav-item">Cambiar Clave</div>
+      <div class="nav-item notif-item">🔔<span class="notif-badge">2</span></div>
+      <a class="nav-item" href="../index.html">Salir ➜</a>
+    </div>
+  </nav>
+
+  <div class="page-wrapper con-lateral">
+
+    <aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralTitulo">
+      <div class="sidebar-marca">
+        <div class="perfil-foto">
+          <img id="perfil-avatar" src="../assets/img/SENA/usuario.JPG" alt="Logosímbolo de perfil">
+          <label class="perfil-camara" title="Cambiar foto de perfil">
+            <span aria-hidden="true">📷</span>
+            <input type="file" id="perfil-archivo" accept="image/*" hidden>
+          </label>
+        </div>
+      </div>
+      <div class="sidebar-role">
+        <img id="ses-avatar" class="sidebar-avatar" src="../assets/img/SENA/usuario.JPG" alt="">
+        <div>
+          <p class="sidebar-nombre" id="ses-nombre">M.A. Castro P.</p>
+          <p class="sidebar-rol">Administrador</p>
+        </div>
+      </div>
+      <ul class="sidebar-menu">
+
+        <li>
+          <button class="menu-btn" aria-expanded="false">
+            <span><img class="icon-left icon-img" src="../assets/img/iconos/grupo.svg" alt="Aprendices">Gestión de Usuarios</span>
+            <span class="arrow">❯</span>
+          </button>
+          <ul class="submenu">
+            <li><a href="#" data-view="sec-listar">Listar Usuarios</a></li>
+            <li><a href="#" data-view="sec-crear">Crear Usuario</a></li>
+            <li><a href="#" data-view="sec-buscar">Buscar Usuario</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <button class="menu-btn" aria-expanded="false">
+            <span><img class="icon-left icon-img" src="../assets/img/iconos/configuracion.svg" alt="Configuración">Administración</span>
+            <span class="arrow">❯</span>
+          </button>
+          <ul class="submenu">
+            <li><a href="#" data-view="sec-curso">Crear curso</a></li>
+            <li><a href="#" class="sub-item" data-view="sec-curso">Virtual</a></li>
+            <li><a href="#" class="sub-item" data-view="sec-curso">Técnico</a></li>
+            <li><a href="#" class="sub-item" data-view="sec-curso">Tecnólogo</a></li>
+            <li><a href="#" data-view="sec-config">Configuración General</a></li>
+            <li><a href="#" data-view="sec-parametros">Parámetros del Sistema</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <button class="menu-btn" aria-expanded="false">
+            <span><img class="icon-left icon-img" src="../assets/img/iconos/notificacion.svg" alt="Notificaciones">Notificaciones <span class="badge-menu">2</span></span>
+            <span class="arrow">❯</span>
+          </button>
+          <ul class="submenu">
+            <li><a href="#" data-view="sec-notif-1">Reporte de aprendiz</a></li>
+            <li><a href="#" data-view="sec-notif-2">Reporte de instructor</a></li>
+          </ul>
+        </li>
+
+
+        <li>
+          <button class="menu-btn" aria-expanded="false">
+            <span><img class="icon-left icon-img" src="../assets/img/SENA/portafolio.JPG" alt="Ficha">Administrar</span>
+            <span class="arrow">❯</span>
+          </button>
+          <ul class="submenu">
+            <li><a href="#" data-view="sec-materiales-curso">Cargar materiales del curso</a></li>
+            <li><a href="#" data-view="sec-ra-curso">Cargar resultados de aprendizaje</a></li>
+            <li><a href="#" data-view="sec-vincular">Vincular aprendices a la ficha</a></li>
+            <li><a href="#" data-view="sec-asignar-instructor">Asignar instructor</a></li>
+            <li><a href="#" data-view="sec-evaluacion">Crear contenido de evaluación</a></li>
+            <li><a href="#" data-view="sec-modulos-formativos">Módulos formativos</a></li>
+            <li><a href="#" data-view="sec-plan-formativo">Asignar contenido y desbloquear módulos</a></li>
+            <li><a href="#" data-view="sec-estadisticas">Estadísticas de la ficha</a></li>
+            <li><a href="#" data-view="sec-reportes-ficha">Reportes de la ficha</a></li>
+            <li><a href="#" data-view="sec-resultados-embebidos">Resultados de las actividades</a></li>
+            <li><a href="#" data-view="sec-tablero64">Tablero de 64 bits</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#" class="menu-btn menu-enlace" data-view="sec-sala">
+            <span><img class="icon-left icon-img" src="../assets/img/iconos/grupo.svg" alt="">Sala en tiempo real</span>
+            <span class="arrow">❯</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="menu-btn menu-enlace" data-view="sec-directorio">
+            <span><img class="icon-left icon-img" src="../assets/img/iconos/grupo.svg" alt="">Directorio de la ficha</span>
+            <span class="arrow">❯</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="menu-btn menu-enlace" data-view="sec-cronograma">
+            <span><img class="icon-left icon-img" src="../assets/img/iconos/calendario.svg" alt="">Cronograma</span>
+            <span class="arrow">❯</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="menu-btn menu-enlace" data-view="sec-ficha-aprendizaje">
+            <span><img class="icon-left icon-img" src="../assets/img/SENA/panel.JPG" alt="Avance">Consultar ficha de aprendizaje</span>
+            <span class="arrow">❯</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+
+      <div class="titulo-vista" id="titulo-vista">Inicio</div>
+
+      <!-- ══ DASHBOARD (inicio) ══ -->
+      <section class="view-section" id="sec-home">
+
+            <p class="frecuentes-title">M&oacute;dulo destacado &mdash; ficha 3293836</p>
+            <div class="card-modulo" data-modulo="Python" data-ficha="3293836"></div>
+
+        <div class="pantallas" id="pantallas">
+
+          <article class="pantalla pantalla-administrar">
+            <header class="pantalla-barra"><span>Administrar</span><i class="pantalla-led"></i></header>
+            <div class="pantalla-cuerpo">
+              <div class="acciones-rejilla">
+                <button type="button" class="accion" data-ir="sec-curso">
+                  <img src="../assets/img/iconos/crear.svg" alt=""><span>Crear ficha</span>
+                </button>
+                <button type="button" class="accion" data-ir="sec-asignar-instructor">
+                  <img src="../assets/img/SENA/pizarra.JPG" alt=""><span>Asignar instructor</span>
+                </button>
+                <button type="button" class="accion" data-ir="sec-vincular">
+                  <img src="../assets/img/iconos/grupo.svg" alt=""><span>Asignar aprendiz</span>
+                </button>
+                <button type="button" class="accion" data-ir="sec-evaluacion">
+                  <img src="../assets/img/SENA/manual.JPG" alt=""><span>Crear evaluación</span>
+                </button>
+                <button type="button" class="accion" data-ir="sec-materiales-curso">
+                  <img src="../assets/img/SENA/portafolio.JPG" alt=""><span>Cargar material</span>
+                </button>
+                <button type="button" class="accion" data-ir="sec-estadisticas">
+                  <img src="../assets/img/SENA/panel.JPG" alt=""><span>Estadísticas</span>
+                </button>
+                <button type="button" class="accion" data-ir="sec-reportes-ficha">
+                  <img src="../assets/img/iconos/documento.svg" alt=""><span>Reportes</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="pantalla" data-ir="sec-asignar-instructor" tabindex="0">
+            <header class="pantalla-barra"><span>Fichas creadas</span><i class="pantalla-led"></i></header>
+            <div class="pantalla-cuerpo">
+              <p class="pantalla-cifra" id="pt-fichas">0</p>
+              <p class="pantalla-pie" id="pt-fichas-pie">con instructor titular</p>
+              <div class="pantalla-barra-progreso"><span id="pt-fichas-relleno"></span></div>
+              <ul class="pantalla-fichas" id="pt-lista-fichas"></ul>
+              <div class="pantalla-doble">
+                <span><b id="pt-vinculados">0</b> aprendices</span>
+                <span><b id="pt-contenidos">0</b> contenidos</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="pantalla pantalla-aula">
+            <header class="pantalla-barra">
+              <span>Aula de la ficha — avance por aprendiz</span>
+              <span class="pantalla-sello" id="pt-aula-resumen"></span>
+            </header>
+            <div class="pantalla-cuerpo">
+              <select class="form-select form-select-sm pt-aula-selector" id="pt-aula-ficha"></select>
+              <div class="aula-lienzo" id="pt-aula"></div>
+            </div>
+          </article>
+
+          <article class="pantalla pantalla-ancha" data-ir="sec-tablero64" tabindex="0">
+            <header class="pantalla-barra">
+              <span>Tablero de 64 bits — ficha en curso</span>
+              <span class="pantalla-sello">AA 1 · Programación en Python</span>
+            </header>
+            <div class="pantalla-cuerpo">
+              <div class="t64-marco" id="t64-panel"></div>
+            </div>
+          </article>
+
+          <article class="pantalla pantalla-ancha">
+            <header class="pantalla-barra">
+              <span>Reporte de novedades</span>
+              <span class="pantalla-sello" id="pt-sello"></span>
+            </header>
+            <div class="pantalla-cuerpo">
+              <div class="novedades" id="pt-novedades"></div>
+            </div>
+          </article>
+
+        </div>
+        <div class="quick-actions">
+          <h2>Acciones rápidas</h2>
+          <div class="d-flex flex-wrap gap-2 action-buttons">
+            <button class="btn btn-action btn-primary" onclick="showSection('sec-crear')">➕ Nuevo usuario</button>
+            <button class="btn btn-action btn-secondary" onclick="showSection('sec-listar')">👥 Ver todos</button>
+            <button class="btn btn-action btn-secondary" onclick="showSection('sec-config')">⚙️ Configuración</button>
+          </div>
+        </div>
+        <section class="section-table">
+          <h2>Usuarios registrados</h2>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Última sesión</th><th>Acciones</th></tr></thead>
+            <tbody>
+              <tr><td>Aprendiz 9</td><td>a.torres@sena.edu.co</td><td><span class="badge role-badge role-admin">Administrador</span></td><td><span class="badge status-badge status-active">Activo</span></td><td>2026-06-24</td><td><a href="#" class="btn btn-sm btn-table">Editar</a></td></tr>
+              <tr><td>Zulma Salas</td><td>c.nino@sena.edu.co</td><td><span class="badge role-badge role-instructor">Instructor</span></td><td><span class="badge status-badge status-active">Activo</span></td><td>2026-06-24</td><td><a href="#" class="btn btn-sm btn-table">Editar</a><a href="#" class="btn btn-sm btn-table btn-danger">Desactivar</a></td></tr>
+              <tr><td>Aprendiz 1</td><td>l.garcia@sena.edu.co</td><td><span class="badge role-badge role-aprendiz">Aprendiz</span></td><td><span class="badge status-badge status-active">Activo</span></td><td>2026-06-23</td><td><a href="#" class="btn btn-sm btn-table">Editar</a><a href="#" class="btn btn-sm btn-table btn-danger">Desactivar</a></td></tr>
+              <tr><td>Rojas Suárez, Miguel</td><td>m.rojas@sena.edu.co</td><td><span class="badge role-badge role-aprendiz">Aprendiz</span></td><td><span class="badge status-badge status-inactive">Inactivo</span></td><td>2026-06-10</td><td><a href="#" class="btn btn-sm btn-table">Editar</a><a href="#" class="btn btn-sm btn-table btn-success">Activar</a></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+      </section>
+
+      <!-- ══ LISTAR USUARIOS ══ -->
+      <section class="view-section" id="sec-listar">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/grupo.svg" alt="Aprendices"> Gestión de Usuarios</h1>
+          <p>Consulta de las fichas a cargo y de los aprendices matriculados en ellas</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <select class="form-select" id="lst-ficha" style="max-width:340px;">
+            <option value="3293836">Ficha 3293836 — en curso</option>
+            <option value="2">Ficha 2 — nueva</option>
+          </select>
+          <input class="form-control" id="lst-buscar" type="search"
+                 placeholder="Buscar aprendiz por nombre o documento…" style="max-width:340px;">
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <button type="button" class="btn btn-action btn-primary" id="lst-ver-ficha">Consultar ficha</button>
+          <button type="button" class="btn btn-action btn-secondary" id="lst-ver-aprendiz">Consultar aprendiz</button>
+        </div>
+
+        <div id="lst-resultado"></div>
+      </section>
+
+      <!-- ══ CREAR USUARIO ══ -->
+      <section class="view-section" id="sec-crear">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/crear.svg" alt="Crear"> Crear nuevo usuario</h1>
+          <p>RF01 — Complete todos los campos obligatorios (*). La cuenta quedará registrada con auditoría.</p>
+        </div>
+        <form onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group"><label>Nombres *</label><input class="form-control" type="text" placeholder="Ej: Andrea Lucía"></div>
+            <div class="form-group"><label>Apellidos *</label><input class="form-control" type="text" placeholder="Ej: Torres Vargas"></div>
+            <div class="form-group"><label>Correo electrónico *</label><input class="form-control" type="email" placeholder="usuario@sena.edu.co"></div>
+            <div class="form-group"><label>Rol *</label>
+              <select class="form-select">
+                <option value="">Seleccione un rol</option>
+                <option>Administrador</option>
+                <option>Instructor</option>
+                <option>Aprendiz</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Tipo de documento *</label>
+              <select class="form-select">
+                <option value="">Seleccione</option>
+                <option>Cédula de Ciudadanía (CC)</option>
+                <option>Tarjeta de Identidad (TI)</option>
+                <option>Cédula de Extranjería (CE)</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Número de documento *</label><input class="form-control" type="text" placeholder="Ej: 1001234567"></div>
+            <div class="form-group"><label>Contraseña *</label><input class="form-control" type="password" placeholder="Mínimo 8 caracteres"></div>
+            <div class="form-group"><label>Confirmar contraseña *</label><input class="form-control" type="password" placeholder="Repite la contraseña"></div>
+            <div class="form-group"><label>Estado</label>
+              <select class="form-select"><option>Activo</option><option>Inactivo</option></select>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button class="btn btn-action btn-primary" onclick="alert('Usuario guardado (simulación)')">💾 Guardar usuario</button>
+            <button class="btn btn-action btn-secondary" onclick="showSection('sec-listar')">Cancelar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ══ BUSCAR USUARIO ══ -->
+      <section class="view-section" id="sec-buscar">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/buscar.JPG" alt="Buscar"> Buscar Usuario</h1>
+          <p>RF01 — Filtra por nombre, correo, rol o estado</p>
+        </div>
+        <div class="search-bar" style="margin-bottom:16px;">
+          <input class="form-control" type="text" placeholder="Buscar por nombre, correo o número de documento...">
+          <select class="form-select" style="padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px;">
+            <option value="">Todos los roles</option>
+            <option>Administrador</option><option>Instructor</option><option>Aprendiz</option>
+          </select>
+          <select class="form-select" style="padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px;">
+            <option value="">Todos los estados</option>
+            <option>Activo</option><option>Inactivo</option>
+          </select>
+          <button type="button">🔍 Buscar</button>
+        </div>
+        <table class="table table-hover align-middle data-table">
+          <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr><td>Aprendiz 1</td><td>l.garcia@sena.edu.co</td><td><span class="badge role-badge role-aprendiz">Aprendiz</span></td><td><span class="badge status-badge status-active">Activo</span></td><td><a href="#" class="btn btn-sm btn-table">Editar</a><a href="#" class="btn btn-sm btn-table btn-danger">Desactivar</a></td></tr>
+            <tr><td>Aprendiz 2</td><td>c.martinez@sena.edu.co</td><td><span class="badge role-badge role-aprendiz">Aprendiz</span></td><td><span class="badge status-badge status-active">Activo</span></td><td><a href="#" class="btn btn-sm btn-table">Editar</a><a href="#" class="btn btn-sm btn-table btn-danger">Desactivar</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ══ CREAR CURSO ══ -->
+      <section class="view-section" id="sec-curso">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/crear.svg" alt="Crear"> Crear Curso</h1>
+          <p>Registro de una nueva oferta de formación en el SGMA-ADSO</p>
+        </div>
+
+        <form id="form-curso" novalidate>
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre del curso *</label>
+              <input class="form-control" type="text" id="curso-nombre" placeholder="Ej: Análisis y Desarrollo de Software"></div>
+            <div class="form-group"><label>Modalidad *</label>
+              <select class="form-select" id="curso-modalidad">
+                <option value="virtual">Virtual</option>
+                <option value="tecnico">Técnico</option>
+                <option value="tecnologo" selected>Tecnólogo</option>
+              </select></div>
+            <div class="form-group"><label>Ficha</label>
+              <input class="form-control" type="text" id="curso-ficha" placeholder="Ej: 3312500"></div>
+            <div class="form-group"><label>Duración (meses)</label>
+              <input class="form-control" type="number" id="curso-duracion" value="24" min="1" max="48"></div>
+            <div class="form-group"><label>Cupo de aprendices</label>
+              <input class="form-control" type="number" id="curso-cupo" value="30" min="1" max="40"></div>
+            <div class="form-group"><label>Instructor asignado</label>
+              <input class="form-control" type="text" id="curso-instructor" placeholder="Ej: Zulma Salas"></div>
+            <div class="form-group span-2"><label>Descripción</label>
+              <textarea class="form-control" id="curso-desc" placeholder="Objeto de la formación y perfil de egreso"></textarea></div>
+          </div>
+          <p id="curso-msg" class="login-msg" role="alert"></p>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button type="submit" class="btn btn-action btn-primary">Crear curso</button>
+            <button type="reset" class="btn btn-action btn-secondary">Limpiar</button>
+          </div>
+        </form>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Cursos registrados</h2></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Curso</th><th>Modalidad</th><th>Ficha</th><th>Duración</th><th>Cupo</th><th>Instructor</th></tr></thead>
+            <tbody id="curso-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ CONFIGURACIÓN GENERAL ══ -->
+      <section class="view-section" id="sec-config">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/configuracion.svg" alt="Configuración"> Configuración General</h1>
+          <p>Parámetros globales del sistema SGMA-ADSO</p>
+        </div>
+        <form onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre del sistema</label><input class="form-control" type="text" value="SGMA-ADSO"></div>
+            <div class="form-group"><label>Institución</label><input class="form-control" type="text" value="SENA CEGAFE — Regional Boyacá"></div>
+            <div class="form-group"><label>Correo de contacto</label><input class="form-control" type="email" value="sgma@sena.edu.co"></div>
+            <div class="form-group"><label>Máx. intentos de sesión fallidos</label><input class="form-control" type="number" value="5" min="1" max="10"></div>
+            <div class="form-group"><label>Tiempo de sesión (minutos)</label><input class="form-control" type="number" value="60" min="10"></div>
+            <div class="form-group"><label>Modo mantenimiento</label>
+              <select class="form-select"><option>Desactivado</option><option>Activado</option></select>
+            </div>
+            <div class="form-group span-2"><label>Mensaje de bienvenida</label><textarea class="form-control">Bienvenido al Sistema de Gestión y Monitoreo Académico ADSO — SENA CEGAFE.</textarea></div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button class="btn btn-action btn-primary" onclick="alert('Configuración guardada (simulación)')">💾 Guardar cambios</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ══ PARÁMETROS ══ -->
+      <section class="view-section" id="sec-parametros">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/herramientas.JPG" alt="Mantenimiento"> Parámetros del Sistema</h1>
+          <p>Variables de configuración interna del SGMA-ADSO</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <button class="btn btn-action btn-primary" onclick="alert('Nuevo parámetro (simulación)')">➕ Agregar parámetro</button>
+        </div>
+        <table class="table table-hover align-middle data-table">
+          <thead><tr><th>Parámetro</th><th>Valor actual</th><th>Descripción</th><th>Acción</th></tr></thead>
+          <tbody>
+            <tr><td><code>MAX_INTENTOS</code></td><td>5</td><td>Máximo de intentos fallidos de sesión</td><td><a href="#" class="btn btn-sm btn-table">Editar</a></td></tr>
+            <tr><td><code>TIEMPO_SESION</code></td><td>60 min</td><td>Tiempo de inactividad antes de cerrar sesión</td><td><a href="#" class="btn btn-sm btn-table">Editar</a></td></tr>
+            <tr><td><code>TAMANO_MAX_ARCHIVO</code></td><td>10 MB</td><td>Tamaño máximo de evidencias de código</td><td><a href="#" class="btn btn-sm btn-table">Editar</a></td></tr>
+            <tr><td><code>FORMATOS_PERMITIDOS</code></td><td>.py, .zip, .pdf</td><td>Extensiones válidas para entrega de evidencias</td><td><a href="#" class="btn btn-sm btn-table">Editar</a></td></tr>
+            <tr><td><code>UMBRAL_ALERTA</code></td><td>60%</td><td>Porcentaje mínimo antes de generar alerta de desempeño</td><td><a href="#" class="btn btn-sm btn-table">Editar</a></td></tr>
+          </tbody>
+        </table>
+        <div class="section-table" style="margin-top:22px;">
+          <div class="tabla-header">
+            <h2>Ingreso de usuarios en tiempo real</h2>
+            <span class="repo-conteo" id="live-sello"></span>
+          </div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Hora</th><th>Usuario</th><th>Rol</th><th>Ficha</th><th>Evento</th></tr></thead>
+            <tbody id="live-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="section-table" style="margin-top:18px;">
+          <div class="tabla-header"><h2>Reportes enviados por los usuarios</h2></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Fecha</th><th>Usuario</th><th>Rol</th><th>Asunto</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>2026-06-24</td><td>Aprendiz 3</td><td><span class="badge role-badge role-aprendiz">Aprendiz</span></td><td>No carga la evidencia del ejercicio 2</td><td><span class="badge status-badge status-inactive">Abierto</span></td></tr>
+              <tr><td>2026-06-23</td><td>Zulma Salas</td><td><span class="badge role-badge role-instructor">Instructor</span></td><td>Solicita ampliar el cupo de la ficha</td><td><span class="badge status-badge status-closed">En revisión</span></td></tr>
+              <tr><td>2026-06-22</td><td>Aprendiz 7</td><td><span class="badge role-badge role-aprendiz">Aprendiz</span></td><td>Error al descargar la guía de aprendizaje</td><td><span class="badge status-badge status-active">Resuelto</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <!-- ══ NOTIFICACIÓN 1 ══ -->
+      <section class="view-section" id="sec-notif-1">
+        <div class="sec-header"><h1><img class="ico ico-h1" src="../assets/img/iconos/notificacion.svg" alt="Notificaciones"> Detalle de notificación</h1></div>
+        <div class="card notif-card">
+          <h3>Reporte de aprendiz</h3>
+          <p><strong>Aprendiz 3</strong> reportó que no logra cargar la evidencia del ejercicio 2. El archivo supera el tamaño permitido por el parámetro <code>TAMANO_MAX_ARCHIVO</code>.</p>
+          <p class="notif-meta">2026-06-24 09:15 · Ficha 3293836 · Estado: abierto</p>
+        </div>
+        <button class="btn btn-action btn-secondary" onclick="showSection('sec-parametros')">Ver parámetros del sistema</button>
+      </section>
+
+      <!-- ══ NOTIFICACIÓN 2 ══ -->
+      <section class="view-section" id="sec-notif-2">
+        <div class="sec-header"><h1><img class="ico ico-h1" src="../assets/img/iconos/notificacion.svg" alt="Notificaciones"> Detalle de notificación</h1></div>
+        <div class="card notif-card">
+          <h3>Reporte de instructor</h3>
+          <p>La instructora <strong>Zulma Salas</strong> solicita ampliar el cupo de la ficha 3293836 de 30 a 35 aprendices para el siguiente trimestre.</p>
+          <p class="notif-meta">2026-06-23 14:02 · Ficha 3293836 · Estado: en revisión</p>
+        </div>
+        <button class="btn btn-action btn-secondary" onclick="showSection('sec-listar')">Consultar la ficha</button>
+      </section>
+
+      <!-- ══ MATERIALES DEL CURSO ══ -->
+      <section class="view-section" id="sec-materiales-curso">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/portafolio.JPG" alt="Materiales"> Cargar Materiales del Curso</h1>
+          <p>Los materiales que registre aquí quedan visibles para el instructor y para los aprendices de la ficha</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <label class="campo-label" for="mat-ficha" style="margin:0;">Ficha</label>
+          <select class="form-select" id="mat-ficha" style="max-width:320px;">
+            <option value="3293836">Ficha 3293836 — en curso</option>
+            <option value="2">Ficha 2 — nueva</option>
+          </select>
+        </div>
+
+        <form id="form-material" novalidate>
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre del material *</label>
+              <input class="form-control" type="text" id="mat-nombre" placeholder="Ej: Guía de aprendizaje 4"></div>
+            <div class="form-group"><label>Tipo</label>
+              <select class="form-select" id="mat-tipo">
+                <option>PDF</option><option>Word</option><option>PowerPoint</option>
+                <option>Video</option><option>Enlace</option>
+              </select></div>
+          </div>
+          <p id="mat-msg" class="login-msg" role="alert"></p>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button type="submit" class="btn btn-action btn-primary">Cargar material</button>
+          </div>
+        </form>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Materiales cargados</h2><span class="repo-conteo" id="mat-conteo"></span></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Material</th><th>Tipo</th><th>Ficha</th><th>Cargado</th><th></th></tr></thead>
+            <tbody id="mat-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ RESULTADOS DE APRENDIZAJE ══ -->
+      <section class="view-section" id="sec-ra-curso">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/panel.JPG" alt="Resultados"> Cargar Resultados de Aprendizaje</h1>
+          <p>Define los resultados sobre los que el instructor calificará el avance de cada aprendiz</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <label class="campo-label" for="ra-ficha" style="margin:0;">Ficha</label>
+          <select class="form-select" id="ra-ficha" style="max-width:320px;">
+            <option value="3293836">Ficha 3293836 — en curso</option>
+            <option value="2">Ficha 2 — nueva</option>
+          </select>
+        </div>
+
+        <form id="form-ra" novalidate>
+          <div class="form-grid">
+            <div class="form-group"><label>Código *</label>
+              <input class="form-control" type="text" id="ra-codigo" placeholder="Ej: RA-04"></div>
+            <div class="form-group span-2"><label>Descripción *</label>
+              <textarea class="form-control" id="ra-desc" placeholder="Enunciado del resultado de aprendizaje"></textarea></div>
+          </div>
+          <p id="ra-msg" class="login-msg" role="alert"></p>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button type="submit" class="btn btn-action btn-primary">Cargar resultado</button>
+          </div>
+        </form>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Resultados definidos</h2><span class="repo-conteo" id="ra-conteo"></span></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Código</th><th>Descripción</th><th>Ficha</th><th></th></tr></thead>
+            <tbody id="ra-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ VINCULAR APRENDICES ══ -->
+      <section class="view-section" id="sec-vincular">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/grupo.svg" alt="Aprendices"> Vincular Aprendices a la Ficha</h1>
+          <p>Solo el administrador matricula aprendices; el instructor los recibe ya vinculados</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <label class="campo-label" for="vin-ficha" style="margin:0;">Ficha</label>
+          <select class="form-select" id="vin-ficha" style="max-width:320px;">
+            <option value="3293836">Ficha 3293836 — en curso</option>
+            <option value="2">Ficha 2 — nueva</option>
+          </select>
+        </div>
+
+        <form id="form-vincular" novalidate>
+          <div class="form-grid">
+            <div class="form-group span-2"><label>Aprendiz *</label>
+              <input class="form-control" type="text" id="vin-nombre" placeholder="Apellidos, Nombres"></div>
+          </div>
+          <p id="vin-msg" class="login-msg" role="alert"></p>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button type="submit" class="btn btn-action btn-primary">Vincular a la ficha</button>
+            <button type="button" class="btn btn-action btn-secondary" id="vin-cargar-directorio">Vincular los 27 del directorio</button>
+          </div>
+        </form>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Aprendices vinculados</h2><span class="repo-conteo" id="vin-conteo"></span></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>#</th><th>Aprendiz</th><th></th></tr></thead>
+            <tbody id="vin-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ CRONOGRAMA ══ -->
+      <section class="view-section" id="sec-cronograma">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/calendario.svg" alt="Cronograma"> Cronograma de la Formación</h1>
+          <p>Línea de tiempo de las fases, calendario del mes y detalle de actividades</p>
+        </div>
+
+        <div class="bloque-tiempo">
+          <div class="tabla-header"><h2>Línea de tiempo</h2></div>
+          <div class="linea-tiempo" id="linea-tiempo"></div>
+        </div>
+
+        <div class="rejilla-cronograma">
+          <div class="bloque-tiempo">
+            <div class="tabla-header">
+              <h2 id="cal-titulo">Calendario</h2>
+              <span class="cal-navegacion">
+                <button type="button" class="btn btn-sm btn-table" id="cal-antes">‹</button>
+                <button type="button" class="btn btn-sm btn-table" id="cal-hoy-btn">Hoy</button>
+                <button type="button" class="btn btn-sm btn-table" id="cal-despues">›</button>
+              </span>
+            </div>
+            <div class="calendario" id="calendario"></div>
+            <div class="cal-leyenda">
+              <span><i class="cal-punto punto-sesion"></i> Sesión</span>
+              <span><i class="cal-punto punto-entrega"></i> Entrega</span>
+              <span><i class="cal-punto punto-evaluacion"></i> Evaluación</span>
+              <span><i class="cal-punto punto-cierre"></i> Cierre</span>
+            </div>
+          </div>
+
+          <div class="bloque-tiempo">
+            <div class="tabla-header">
+              <h2>Actividades</h2>
+              <span class="repo-conteo" id="crono-conteo"></span>
+            </div>
+            <div class="tabla-rejilla" id="crono-tabla">
+              <div class="tr-cabecera">Fecha</div>
+              <div class="tr-cabecera">Actividad</div>
+              <div class="tr-cabecera">Tipo</div>
+              <div class="tr-cabecera">Hora</div>
+              <div class="tr-cabecera">Lugar</div>
+              <div class="tr-cabecera">Materiales</div>
+              <div class="tr-cabecera">Requisitos</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ ASIGNAR INSTRUCTOR ══ -->
+      <section class="view-section" id="sec-asignar-instructor">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/pizarra.JPG" alt="Instructor"> Asignar Instructor a una Ficha</h1>
+          <p>Cada ficha admite un instructor titular; una asignación nueva releva a la anterior</p>
+        </div>
+
+        <form id="form-instructor" novalidate>
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre del instructor *</label>
+              <input class="form-control" type="text" id="ins-nombre" placeholder="Ej: Zulma Salas"></div>
+            <div class="form-group"><label>Documento *</label>
+              <input class="form-control" type="text" id="ins-documento" placeholder="Ej: 123456789"></div>
+            <div class="form-group"><label>Ficha</label>
+              <select class="form-select" id="ins-ficha">
+                <option value="3293836">Ficha 3293836 — en curso</option>
+                <option value="2">Ficha 2 — nueva</option>
+              </select></div>
+            <div class="form-group"><label>Jornada</label>
+              <select class="form-select" id="ins-jornada">
+                <option>Mañana</option><option>Tarde</option><option>Noche</option><option>Por definir</option>
+              </select></div>
+            <div class="form-group span-2"><label>Clave de ingreso</label>
+              <input class="form-control" type="text" id="ins-clave" placeholder="Con qué clave entrará al panel">
+              <span class="bloque-nota">Sin clave, el instructor queda asignado a la ficha pero no puede entrar al sistema.</span></div>
+          </div>
+          <p id="ins-msg" class="login-msg" role="alert"></p>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button type="submit" class="btn btn-action btn-primary">Asignar instructor</button>
+          </div>
+        </form>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Fichas y su titular</h2><span class="repo-conteo" id="ins-conteo"></span></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Ficha</th><th>Instructor</th><th>Documento</th><th>Jornada</th><th></th></tr></thead>
+            <tbody id="ins-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ CONTENIDO DE EVALUACIÓN ══ -->
+      <section class="view-section" id="sec-evaluacion">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/manual.JPG" alt="Evaluación"> Crear Contenido de Evaluación</h1>
+          <p>Define los instrumentos con los que el instructor evaluará a los aprendices de la ficha</p>
+        </div>
+
+        <form id="form-evaluacion" novalidate>
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre de la evaluación *</label>
+              <input class="form-control" type="text" id="ev-nombre" placeholder="Ej: Cuestionario Módulo 3"></div>
+            <div class="form-group"><label>Tipo</label>
+              <select class="form-select" id="ev-tipo">
+                <option>Cuestionario</option><option>Taller</option>
+                <option>Informe</option><option>Proyecto</option><option>Sustentación</option>
+              </select></div>
+            <div class="form-group"><label>Ficha</label>
+              <select class="form-select" id="ev-ficha">
+                <option value="3293836">Ficha 3293836 — en curso</option>
+                <option value="2">Ficha 2 — nueva</option>
+              </select></div>
+            <div class="form-group"><label>Número de preguntas</label>
+              <input class="form-control" type="number" id="ev-preguntas" value="10" min="1" max="60"></div>
+            <div class="form-group"><label>Resultado asociado</label>
+              <input class="form-control" type="text" id="ev-ra" placeholder="Ej: RA-02"></div>
+            <div class="form-group"><label>Cierre</label>
+              <input class="form-control" type="date" id="ev-cierre"></div>
+          </div>
+          <p id="ev-msg" class="login-msg" role="alert"></p>
+          <div class="d-flex flex-wrap gap-2 form-footer">
+            <button type="submit" class="btn btn-action btn-primary">Crear evaluación</button>
+          </div>
+        </form>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Evaluaciones creadas</h2><span class="repo-conteo" id="ev-conteo"></span></div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Evaluación</th><th>Tipo</th><th>Ficha</th><th>Preguntas</th><th>RA</th><th>Cierre</th><th></th></tr></thead>
+            <tbody id="ev-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ ESTADÍSTICAS DE LA FICHA ══ -->
+      <!-- ══ TABLERO DE 64 BITS ══ -->
+      <section class="view-section" id="sec-tablero64">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/panel.JPG" alt="Tablero"> Tablero de 64 bits</h1>
+          <p>Ocho por ocho. Cada bit toma uno de tres tonos y una altura según el logro, para la ficha completa o para un aprendiz. Cuatro vistas del mismo dato: planta, barras, relieve isométrico y torres de volumen.</p>
+        </div>
+
+        <div class="t64-controles">
+          <div class="form-group"><label for="t64-adm-ficha">Ficha</label>
+            <select class="form-select" id="t64-adm-ficha"></select>
+          </div>
+          <div class="form-group"><label for="t64-adm-reporte">Reporte</label>
+            <select class="form-select" id="t64-adm-reporte"></select>
+          </div>
+          <div class="form-group"><label for="t64-adm-alcance">Alcance</label>
+            <select class="form-select" id="t64-adm-alcance"></select>
+          </div>
+          <div class="form-group"><label for="t64-adm-vista">Vista del tablero</label>
+            <select class="form-select" id="t64-adm-vista"></select>
+          </div>
+        </div>
+
+        <div class="t64-marco" id="t64-admin"></div>
+      </section>
+
+      <section class="view-section" id="sec-estadisticas">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/panel.JPG" alt="Estadísticas"> Estadísticas de la Ficha</h1>
+          <p>Avance individual y grupal, reparto por rangos y entrega de evidencias en el tiempo</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <select class="form-select" id="est-ficha" style="max-width:340px;"></select>
+        </div>
+
+        <div class="section-table">
+          <div class="tabla-header"><h2>Medidas del grupo</h2><span class="repo-conteo" id="est-n"></span></div>
+          <div class="medidas" id="est-medidas"></div>
+        </div>
+
+        <div class="section-table" style="margin-top:18px;">
+          <div class="tabla-header"><h2>Aula de la ficha</h2><span class="repo-conteo">Cada columna es un aprendiz</span></div>
+          <div class="aula-lienzo" id="est-aula"></div>
+        </div>
+
+        <div class="section-table" style="margin-top:18px;">
+          <div class="tabla-header"><h2>Avance por aprendiz</h2><span class="repo-conteo">Barra roja: por debajo del 60 %</span></div>
+          <div class="gr-lienzo" id="est-avance"></div>
+        </div>
+
+        <div class="rejilla-graficos">
+          <div class="section-table">
+            <div class="tabla-header"><h2>Reparto por rangos</h2></div>
+            <div id="est-distribucion"></div>
+          </div>
+          <div class="section-table">
+            <div class="tabla-header"><h2>Evidencias por semana</h2></div>
+            <div class="gr-lienzo" id="est-evidencias"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ REPORTES DE LA FICHA ══ -->
+      <section class="view-section" id="sec-reportes-ficha">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/documento.svg" alt="Reportes"> Reportes de la Ficha</h1>
+          <p>Genera el informe completo de la ficha: aprendices, resultados, evidencias, asistencia y planes de mejoramiento</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <select class="form-select" id="rep-ficha" style="max-width:320px;"></select>
+          <button type="button" class="btn btn-action btn-primary" id="rep-generar">Generar reporte</button>
+          <button type="button" class="btn btn-action btn-secondary" id="rep-imprimir">Imprimir</button>
+        </div>
+
+        <fieldset class="rep-opciones">
+          <legend class="campo-label">Incluir en el reporte</legend>
+          <label class="rep-check"><input type="checkbox" class="form-check-input" value="aprendices" checked> Aprendices de la ficha</label>
+          <label class="rep-check"><input type="checkbox" class="form-check-input" value="resultados" checked> Resultados de aprendizaje</label>
+          <label class="rep-check"><input type="checkbox" class="form-check-input" value="evidencias" checked> Entrega de evidencias en el tiempo</label>
+          <label class="rep-check"><input type="checkbox" class="form-check-input" value="asistencia" checked> Faltas e inasistencias</label>
+          <label class="rep-check"><input type="checkbox" class="form-check-input" value="mejoramiento" checked> Planes de mejoramiento</label>
+        </fieldset>
+
+        <div id="rep-salida"></div>
+      </section>
+
+      <!-- ══ PLAN FORMATIVO: ASIGNAR Y DESBLOQUEAR ══ -->
+      <section class="view-section" id="sec-plan-formativo" data-quien="Administrador">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/crear.svg" alt="Asignar"> Asignar Contenido y Desbloquear Módulos</h1>
+          <p>Lo que se habilite aquí es lo que el aprendiz encuentra en «Reportar evidencia de aprendizaje», dentro del Módulo 3 — Evalúa</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <select class="form-select" id="ac-ficha" style="max-width:340px;"></select>
+          <button type="button" class="btn btn-action btn-primary" id="ac-proximo">Abrir el próximo módulo</button>
+        </div>
+        <p class="bloque-nota" id="ac-aviso" hidden></p>
+
+        <div class="tabla-header" id="ac-estado-ficha" style="flex-wrap:wrap;gap:10px;margin-bottom:16px;"></div>
+
+        <div class="section-table" style="margin-bottom:20px;">
+          <div class="tabla-header">
+            <h2>Crear ficha de aprendizaje virtual</h2>
+            <span class="repo-conteo">Ficha 2 en adelante &middot; 4 m&oacute;dulos &middot; hasta 30 cupos</span>
+          </div>
+          <p class="bloque-nota">La ficha 3293836 es real y est&aacute;tica: ya tiene su asignaci&oacute;n, su instructora y su material en <code>docs/Fichas/ADSO 3293836</code>. Las fichas N son plantillas para montar cursos nuevos; sus cupos van de &laquo;Aprendiz 1&raquo; a &laquo;Aprendiz 35&raquo;.</p>
+          <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+            <input class="form-control" type="text" id="ac-nueva-nombre" placeholder="Nombre del curso" style="max-width:280px;">
+            <select class="form-select" id="ac-nueva-nivel" style="max-width:180px;"></select>
+            <input class="form-control" type="text" id="ac-nueva-instructor" placeholder="Instructor a cargo" style="max-width:230px;">
+            <button type="button" class="btn btn-action btn-primary" id="ac-crear">Crear ficha</button>
+          </div>
+        </div>
+
+        <div class="dashboard-metrics" id="ac-resumen"></div>
+
+        <div class="section-table" style="margin-bottom:20px;">
+          <div class="tabla-header">
+            <h2>Módulos de la ficha</h2>
+            <span class="repo-conteo">Desbloquear abre el acceso · Cargar módulo asigna todas sus actividades</span>
+          </div>
+          <p class="bloque-nota">Mientras un módulo esté bloqueado, sus actividades le aparecen al aprendiz en la lista pero no puede entrar.</p>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Módulo</th><th>Actividades</th><th>Asignadas</th><th>En la ficha</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="ac-modulos"></tbody>
+          </table>
+        </div>
+
+        <div class="section-table">
+          <div class="tabla-header">
+            <h2>Catálogo de actividades</h2>
+            <span class="repo-conteo" id="ac-conteo">—</span>
+          </div>
+          <p class="bloque-nota">«Cuesta» son los puntos acumulados que el aprendiz debe llevar para que ese nivel se abra. Déjalo vacío y se calcula solo según el orden del árbol; escribe un número para fijarlo tú.</p>
+          <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+            <select class="form-select" id="ac-filtro" style="max-width:300px;"></select>
+          </div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Asignar</th><th>Actividad</th><th>Módulo</th><th>Tipo</th><th>Puntaje</th><th>Cuesta (pts)</th><th>Qué hace el aprendiz</th><th>Acceso</th></tr></thead>
+            <tbody id="ac-catalogo"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ PUNTAJES DE APRENDICES ══ -->
+      <section class="view-section" id="sec-resultados-embebidos">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/documento.svg" alt="Resultados"> Resultados de las Actividades</h1>
+          <p>Puntajes que los aprendices obtuvieron en los materiales embebidos del curso, reunidos por ficha</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center sec-actions">
+          <select class="form-select" id="rf-ficha" style="max-width:280px;"></select>
+          <select class="form-select" id="rf-rol" style="max-width:220px;">
+            <option value="">Todos los roles</option>
+            <option value="Aprendiz">Solo aprendices</option>
+            <option value="Sin identificar">Sin identificar</option>
+          </select>
+          <select class="form-select" id="rf-aprendiz" style="max-width:260px;">
+            <option value="">Todos los aprendices</option>
+          </select>
+          <button type="button" class="btn btn-action btn-secondary" id="rf-refrescar">Actualizar</button>
+        </div>
+
+        <div class="dashboard-metrics" id="rf-resumen"></div>
+
+        <div class="section-table" style="margin-bottom:20px;">
+          <div class="tabla-header">
+            <h2>Consolidado por participante</h2>
+            <span class="repo-conteo" id="rf-conteo">—</span>
+          </div>
+          <p class="bloque-nota">Toca una fila para ver solo sus actividades en el detalle de abajo; tócala de nuevo para volver a verlas todas.</p>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Participante</th><th>Rol</th><th>Ficha</th><th>Cupo</th><th>Actividades</th><th>Promedio</th><th>Intentos</th><th>Última actividad</th></tr></thead>
+            <tbody id="rf-tbody"></tbody>
+          </table>
+          <p class="bloque-nota" id="rf-vacio" hidden>Todavía no hay puntajes registrados en este navegador.</p>
+        </div>
+
+        <div class="section-table">
+          <div class="tabla-header">
+            <h2>Detalle por actividad</h2>
+            <span class="repo-conteo" id="rf-detalle-quien">—</span>
+          </div>
+          <table class="table table-hover align-middle data-table">
+            <thead><tr><th>Participante</th><th>Actividad</th><th>Módulo</th><th>Mejor puntaje</th><th>Último</th><th>Intentos</th><th>Fecha</th></tr></thead>
+            <tbody id="rf-detalle"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ SALA EN TIEMPO REAL ══ -->
+      <section class="view-section" id="sec-sala">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/grupo.svg" alt="Sala"> Sala en Tiempo Real</h1>
+          <p>Estado vivo de la ficha 3293836: quién figura en la nómina, qué materiales y resultados hay cargados y cuántos aprendices están vinculados</p>
+        </div>
+
+        <div class="sala">
+          <div class="sala-encabezado">
+            <span class="sala-rotulo">Ficha 3293836 — Análisis y Desarrollo de Software</span>
+            <span class="sala-sello" id="monitor-sello"></span>
+          </div>
+          <div class="sala-grid" id="sala-monitor"></div>
+        </div>
+      </section>
+
+      <!-- ══ DIRECTORIO DE LA FICHA ══ -->
+      <section class="view-section" id="sec-directorio">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/grupo.svg" alt="Directorio"> Directorio de la Ficha 3293836</h1>
+          <p>Nómina de aprendices matriculados, tomada del Directorio ADSO</p>
+        </div>
+
+        <div class="notif-card alert card aviso-datos">
+          <h3>Datos personales</h3>
+          <p>Esta vista contiene información personal de los aprendices y de sus acudientes.
+             Úsela solo con fines académicos y no publique esta página en internet.</p>
+        </div>
+
+        <div class="sec-actions d-flex flex-wrap gap-2 align-items-center">
+          <select class="form-select" id="dir-ficha" style="max-width:300px;">
+            <option value="3293836">Ficha 3293836 — ADSO</option>
+            <option value="2">Ficha 2 — nueva</option>
+          </select>
+          <input class="form-control" id="dir-buscar" type="search" placeholder="Buscar por nombre, documento o correo…">
+          <span class="repo-conteo" id="dir-conteo"></span>
+        </div>
+
+        <table class="table table-hover align-middle data-table">
+          <thead><tr><th>#</th><th>Aprendiz</th><th>Documento</th><th>Celular</th><th>Correo institucional</th><th></th></tr></thead>
+          <tbody id="dir-tbody"></tbody>
+        </table>
+        <p id="dir-vacio" class="sugerencia" hidden>Ningún aprendiz coincide con la búsqueda.</p>
+      </section>
+
+      <!-- ══ FICHA DE APRENDIZAJE ══ -->
+      <section class="view-section" id="sec-ficha-aprendizaje">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/panel.JPG" alt="Avance"> Ficha de Aprendizaje — Resultados</h1>
+          <p>Estado del aprendiz y de la ficha. Consulte el avance individual y el global de la ficha, y administre la asignación de fichas a instructores.</p>
+        </div>
+        <div class="sec-actions">
+          <a class="btn btn-action btn-secondary" target="_blank" rel="noopener"
+             href="resultadosdeaprendizajeADSO.html?rol=admin">↗ Abrir en pestaña aparte</a>
+        </div>
+        <iframe class="marco-ra" title="Resultados de aprendizaje ADSO" loading="lazy"
+                src="resultadosdeaprendizajeADSO.html?rol=admin&amp;embed=1"></iframe>
+
+        <hr class="separador-pantalla">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/SENA/organizacion.JPG" alt="Repositorio"> Repositorio de la Ficha 3293836</h1>
+          <p>Análisis y Desarrollo de Software — documentos de la formación organizados por fase</p>
+        </div>
+
+        <div class="repo-barra">
+          <input class="form-control" id="repo-buscar" type="search" placeholder="Buscar documento por nombre…">
+          <select class="form-select" id="repo-tipo">
+            <option value="">Todos los formatos</option>
+            <option value="pdf">PDF</option>
+            <option value="xlsx">Excel</option>
+            <option value="docx">Word</option>
+            <option value="pptx">PowerPoint</option>
+            <option value="html">Material interactivo</option>
+            <option value="mp4">Video</option>
+            <option value="zip">Comprimido</option>
+          </select>
+          <span class="repo-conteo" id="repo-conteo"></span>
+        </div>
+
+        <div id="repo-arbol"></div>
+        <p id="repo-vacio" class="sugerencia" hidden>Ningún documento coincide con la búsqueda.</p>
+      </section>
+
+
+
+      <!-- ══ MÓDULOS FORMATIVOS DE CUATRO PARTES ══ -->
+      <section class="view-section" id="sec-modulos-formativos" data-quien="Administrador">
+        <div class="sec-header">
+          <h1><img class="ico ico-h1" src="../assets/img/iconos/crear.svg" alt="M&oacute;dulos"> M&oacute;dulos Formativos</h1>
+          <p>Un m&oacute;dulo son cuatro partes &mdash; Contenido, Pr&aacute;ctica, Evaluaci&oacute;n y Evidencia &mdash; con su ficha, su instructor y el resultado de aprendizaje que valida.</p>
+        </div>
+
+        <div class="section-table" style="margin-bottom:20px;">
+          <div class="tabla-header">
+            <h2>Crear m&oacute;dulo</h2>
+            <span class="repo-conteo">El instructor puede ser distinto al titular de la ficha</span>
+          </div>
+          <form id="mf-form" autocomplete="off">
+            <div class="form-grid">
+              <div class="form-group"><label for="mf-nuevo-nombre">Nombre del m&oacute;dulo</label>
+                <input class="form-control" type="text" id="mf-nuevo-nombre" placeholder="Ej: Python en ingl&eacute;s">
+              </div>
+              <div class="form-group"><label for="mf-nueva-ficha">Ficha</label>
+                <select class="form-select" id="mf-nueva-ficha"></select>
+              </div>
+              <div class="form-group"><label for="mf-nuevo-instructor">Instructor a cargo</label>
+                <select class="form-select" id="mf-nuevo-instructor"></select>
+                <input class="form-control" type="text" id="mf-otro-instructor" placeholder="Nombre del instructor nuevo" style="margin-top:6px;" hidden>
+              </div>
+              <div class="form-group"><label for="mf-nuevo-ra">Resultado de aprendizaje que valida</label>
+                <select class="form-select" id="mf-nuevo-ra"></select>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center form-footer">
+              <button type="submit" class="btn btn-action btn-primary">Crear m&oacute;dulo</button>
+              <span class="bloque-nota" id="mf-aviso" hidden></span>
+            </div>
+          </form>
+        </div>
+
+        <div id="mf-lista"></div>
+      </section>
+
+    </main>
+
+    <aside class="panel-lateral panel-lateral-alto panel-lateral-sitios lateral-admin" aria-label="Seleccionar sitio institucional">
+
+      <div class="pantallas" id="pantallas-admin">
+        <article class="pantalla pantalla-administrar">
+          <header class="pantalla-barra"><span>Enlaces</span><i class="pantalla-led"></i></header>
+          <div class="pantalla-cuerpo">
+            <div class="acciones-rejilla">
+              <a class="accion" href="senacol/sena_home_index.html" target="_blank" rel="noopener">
+                <img src="../assets/img/iconos/ubicacion.svg" alt=""><span>SENA Colombia</span>
+              </a>
+              <a class="accion" href="Senacegafe/index.html" target="_blank" rel="noopener">
+                <img src="../assets/img/iconos/ubicacion.svg" alt=""><span>SENA CEGAFE</span>
+              </a>
+              <a class="accion" href="sena%20sofia/index.html" target="_blank" rel="noopener">
+                <img src="../assets/img/iconos/ubicacion.svg" alt=""><span>SENA Sofia</span>
+              </a>
+              <a class="accion" href="betowa/betowa_index.html" target="_blank" rel="noopener">
+                <img src="../assets/img/iconos/ubicacion.svg" alt=""><span>SENA Betowa</span>
+              </a>
+              <a class="accion" href="LMS/sofia_plus.html" target="_blank" rel="noopener">
+                <img src="../assets/img/iconos/ubicacion.svg" alt=""><span>LMS</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="pie-franjas">
+      <img src="../assets/img/SENA/lineas%20atencion.JPG"
+           alt="Líneas de atención al ciudadano: Bogotá 601 736 60 60, gratuita 018000 910 270, WhatsApp 316 876 02 55"
+           loading="lazy">
+      <img src="../assets/img/SENA/redes.JPG"
+           alt="Redes sociales @SENAcomunica — www.sena.edu.co" loading="lazy">
+    </div>
+    <div class="pie-aliados">
+      <p class="pie-aliados-titulo">Aliados educativos</p>
+      <img src="../assets/img/SENA/aliadoseducativos.JPG"
+           alt="SENA, ICETEX, DIAN e ICFES" loading="lazy">
+    </div>
+    <p class="pie-legal">
+      <img class="pie-marca" src="../assets/img/SENA/senasoft.JPG" alt="SENA/Soft">
+      SGMA-ADSO · SENA CEGAFE — Regional Boyacá · Tunja 2026
+    </p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/infraestructura/tiempo.js"></script>
+  <script src="../assets/js/estado/ficha.js"></script>
+  <script src="../assets/js/estado/aprendices.js"></script>
+  <script src="../assets/js/catalogo/documentos.js"></script>
+  <script src="../assets/js/vistas/estadisticas.js"></script>
+  <script src="../assets/js/vistas/novedades.js"></script>
+  <script src="../assets/js/evaluacion/tablero64.js"></script>
+  <script src="../assets/js/vistas/pantallas.js"></script>
+  <script src="../assets/js/vistas/sala-monitor.js"></script>
+  <script src="../assets/js/evaluacion/embebidos-catalogo.js"></script>
+  <script src="../assets/js/estado/fichas-n.js"></script>
+  <script src="../assets/js/estado/plan-formativo.js"></script>
+  <script src="../assets/js/vistas/card-modulo.js"></script>
+  <script src="../assets/js/estado/modulos-formativos.js"></script>
+  <script src="../assets/js/vistas/modulos-formativos-vista.js"></script>
+  <script src="../assets/js/vistas/asignar-contenido.js"></script>
+  <script src="../assets/js/evaluacion/resultados-ficha.js"></script>
+  <script src="../assets/js/estado/mensajeria.js"></script>
+  <script src="../assets/js/infraestructura/sofia_plus.js"></script>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+    }
+  </script>
+<div class="offcanvas offcanvas-end bandeja-correo" tabindex="-1" id="bandejaCorreo" aria-labelledby="bandejaCorreoTitulo">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="bandejaCorreoTitulo">📬 Bandeja de correo</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  </div>
+  <div class="offcanvas-body">
+
+    <p class="bandeja-titulo">Historias</p>
+    <div class="historias">
+      <button class="historias-nav" type="button" data-historias="-1" aria-label="Anterior">‹</button>
+      <div class="historias-pista" id="historias-pista">
+        <button class="historia historia-propia" type="button" data-historia="" data-nombre="Tu historia">
+          <span class="historia-aro"><img id="historia-propia-img" src="../assets/img/SENA/usuario.JPG" alt=""></span>
+          <span class="historia-nombre">Tu historia</span>
+        </button>
+        <button class="historia" type="button" data-historia="../assets/img/pj/pj1.png" data-nombre="Laura G.">
+          <span class="historia-aro"><img src="../assets/img/pj/pj1.png" alt=""></span>
+          <span class="historia-nombre">Laura G.</span>
+        </button>
+        <button class="historia" type="button" data-historia="../assets/img/pj/pj2.png" data-nombre="Camilo M.">
+          <span class="historia-aro"><img src="../assets/img/pj/pj2.png" alt=""></span>
+          <span class="historia-nombre">Camilo M.</span>
+        </button>
+        <button class="historia" type="button" data-historia="../assets/img/pj/pj3.png" data-nombre="Valentina P.">
+          <span class="historia-aro"><img src="../assets/img/pj/pj3.png" alt=""></span>
+          <span class="historia-nombre">Valentina P.</span>
+        </button>
+        <button class="historia" type="button" data-historia="../assets/img/pj/pj4.png" data-nombre="Andrés R.">
+          <span class="historia-aro"><img src="../assets/img/pj/pj4.png" alt=""></span>
+          <span class="historia-nombre">Andrés R.</span>
+        </button>
+        <button class="historia" type="button" data-historia="../assets/img/pj/pj5.png" data-nombre="Sofía N.">
+          <span class="historia-aro"><img src="../assets/img/pj/pj5.png" alt=""></span>
+          <span class="historia-nombre">Sofía N.</span>
+        </button>
+      </div>
+      <button class="historias-nav" type="button" data-historias="1" aria-label="Siguiente">›</button>
+    </div>
+
+    <ul class="nav nav-pills nav-fill bandeja-pestanas" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#panel-correo" type="button" role="tab">Correo</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#panel-chat" type="button" role="tab">Mensajes</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="panel-correo" role="tabpanel">
+        <ul class="list-group list-group-flush correo-lista">
+        <li class="list-group-item correo-item correo-nuevo">
+          <div class="correo-cabecera">
+            <span class="correo-quien">Zulma Salas</span>
+            <span class="correo-hora">10:24</span>
+          </div>
+          <p class="correo-asunto">Retroalimentación del Taller Python</p>
+          <p class="correo-avance">Revisé tu entrega y dejé observaciones sobre el manejo de ciclos.</p>
+        </li>
+        <li class="list-group-item correo-item correo-nuevo">
+          <div class="correo-cabecera">
+            <span class="correo-quien">Coordinación Académica</span>
+            <span class="correo-hora">Ayer</span>
+          </div>
+          <p class="correo-asunto">Cierre de trimestre</p>
+          <p class="correo-avance">Recuerde cargar los juicios evaluativos antes del 30 de junio.</p>
+        </li>
+        <li class="list-group-item correo-item correo-nuevo">
+          <div class="correo-cabecera">
+            <span class="correo-quien">Bienestar al Aprendiz</span>
+            <span class="correo-hora">Ayer</span>
+          </div>
+          <p class="correo-asunto">Jornada de salud ocupacional</p>
+          <p class="correo-avance">Inscripciones abiertas para la jornada del próximo viernes.</p>
+        </li>
+        <li class="list-group-item correo-item">
+          <div class="correo-cabecera">
+            <span class="correo-quien">Soporte SGMA-ADSO</span>
+            <span class="correo-hora">23 jun</span>
+          </div>
+          <p class="correo-asunto">Mantenimiento programado</p>
+          <p class="correo-avance">La plataforma estará fuera de servicio el domingo de 2 a 5 a. m.</p>
+        </li>
+        </ul>
+      </div>
+
+      <div class="tab-pane fade" id="panel-chat" role="tabpanel">
+        <div class="chat-hilo" id="chat-hilo"></div>
+        <form class="chat-form" id="chat-form" autocomplete="off">
+          <input class="form-control" id="chat-texto" type="text" placeholder="Escriba un mensaje… (máx. 50 caracteres)" maxlength="50">
+          <button class="btn btn-action btn-primary" type="submit" aria-label="Enviar">➤</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal fade" id="modalHistoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content historia-visor">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historia-titulo">Historia</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="historia-imagen" src="" alt="">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="modalAprendiz" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content historia-visor">
+      <div class="modal-header">
+        <h5 class="modal-title" id="aprendiz-titulo">Aprendiz</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="aprendiz-detalle"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

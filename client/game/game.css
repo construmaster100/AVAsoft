@@ -1,0 +1,323 @@
+:root{
+  --azul: #2f6a8f;
+  --azul-osc: #234f6b;
+  --rojo: #e23c2f;
+  --amarillo: #e8b33d;
+  --tinta: #17222b;
+  --papel: #eef2ee;
+  --tarjeta: #ffffff;
+  --linea-grilla: rgba(23,34,43,.55);
+  --sombra: 0 18px 40px -14px rgba(23,34,43,.35);
+  font-size: 16px;
+}
+
+*{ box-sizing: border-box; }
+
+html,body{
+  margin:0;
+  height:100%;
+  overflow:hidden;
+  background: var(--papel);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(47,106,143,.10), transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(226,60,47,.08), transparent 45%);
+  color: var(--tinta);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.app{
+  height:100vh;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  padding: clamp(10px, 1.4vw, 18px);
+  gap: clamp(10px, 1.4vw, 16px);
+}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  align-items:flex-end;
+  justify-content:space-between;
+}
+
+.lobby-link{
+  display:inline-block;
+  font-size:.74rem;
+  font-weight:600;
+  color: var(--azul-osc);
+  text-decoration:none;
+  margin-bottom:6px;
+}
+.lobby-link:hover{ text-decoration:underline; }
+
+.topbar-eyebrow{
+  display:block;
+  font-size:.72rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color: var(--azul-osc);
+  font-weight:600;
+  margin-bottom:4px;
+}
+.topbar-title h1{
+  margin:0;
+  font-family:"Space Grotesk", sans-serif;
+  font-weight:700;
+  font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+  letter-spacing:-.01em;
+}
+
+/* ---------- Stage layout: todo el body para el visor ---------- */
+.stage{
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-columns: minmax(0,1fr) minmax(150px, 200px);
+  gap: clamp(10px, 1.4vw, 18px);
+  align-items:stretch;
+}
+
+@media (max-width: 720px){
+  .stage{ grid-template-columns: 1fr; }
+  .side-panel{ align-self:center; width:100%; max-width:280px; margin:0 auto; }
+}
+
+/* ---------- Field frame (el visor) ---------- */
+.field-frame{
+  position:relative;
+  min-height:0;
+  background: var(--tarjeta);
+  border-radius:18px;
+  box-shadow: var(--sombra);
+  padding: clamp(8px, 1.4vw, 16px);
+  border: 1px solid rgba(23,34,43,.08);
+}
+
+.field-margin{
+  position:absolute;
+  inset: clamp(8px,1.4vw,16px);
+  border-radius:10px;
+  background: linear-gradient(180deg, #dff2e1, #eef7ee);
+  z-index:0;
+}
+
+#pitch-svg{
+  position:relative;
+  z-index:1;
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:50vh;
+  overflow:hidden;
+  touch-action: manipulation;
+}
+
+.field-caption{
+  position:absolute;
+  top: clamp(20px, 3.4vw, 34px);
+  left: clamp(20px, 3.4vw, 34px);
+  font-family:"Space Grotesk", sans-serif;
+  font-weight:700;
+  font-size: clamp(.68rem, 1.15vw, .85rem);
+  letter-spacing:.08em;
+  color: var(--rojo);
+  background: rgba(255,255,255,.85);
+  padding:3px 10px;
+  border-radius:6px;
+  z-index:2;
+  pointer-events:none;
+}
+
+/* ---------- Grilla de referencia ---------- */
+.grid-line{
+  stroke: var(--linea-grilla);
+  stroke-width:1.5;
+  stroke-dasharray: 6 6;
+  fill:none;
+  vector-effect: non-scaling-stroke;
+  opacity:.55;
+}
+
+/* ---------- Entidades ---------- */
+/* El color de relleno lo pone el atributo `fill` inline (uno por jugador),
+   así que acá solo van el trazo y la sombra — sin `fill` para no pisarlo. */
+.character-body{
+  stroke:#fff;
+  stroke-width:3;
+  filter: drop-shadow(0 3px 6px rgba(23,34,43,.4));
+}
+.character-dir{
+  fill: #fff;
+  opacity:0;
+  transition: opacity .15s ease;
+}
+
+.ball-body{
+  fill:#fff;
+  stroke: var(--tinta);
+  stroke-width:2;
+  filter: drop-shadow(0 2px 5px rgba(23,34,43,.45));
+}
+
+/* ---------- Metas (extremos de la cancha) ---------- */
+.goal-marker{
+  pointer-events:none;
+}
+.goal-marker line{
+  stroke-width:5;
+  stroke-linecap:round;
+  vector-effect: non-scaling-stroke;
+}
+.goal-marker text{
+  font-family:"Space Grotesk", sans-serif;
+  font-weight:700;
+  text-anchor:middle;
+  fill: rgba(255,255,255,.92);
+  paint-order: stroke;
+  stroke: rgba(23,34,43,.55);
+  stroke-width:4;
+}
+
+/* ---------- HUD de marcador ---------- */
+.scoreboard{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background: var(--tarjeta);
+  border:1px solid rgba(23,34,43,.08);
+  border-radius:14px;
+  padding:8px 16px;
+  box-shadow: var(--sombra);
+  font-family:"Space Grotesk", sans-serif;
+  font-weight:700;
+}
+.scoreboard .score-name{
+  font-size:.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:#5b6b64;
+}
+.scoreboard .score-value{
+  font-size:1.5rem;
+  min-width:1.4ch;
+  text-align:center;
+}
+.scoreboard .score-sep{ color:#93a29b; font-weight:400; }
+.scoreboard .score-value.pulse{ animation: score-pulse .4s ease; }
+@keyframes score-pulse{
+  0%{ transform: scale(1); color: var(--tinta); }
+  40%{ transform: scale(1.4); color: var(--rojo); }
+  100%{ transform: scale(1); color: var(--tinta); }
+}
+
+/* ---------- Estado de conexión ---------- */
+.connection-banner{
+  position:absolute;
+  bottom: clamp(14px, 2.4vw, 26px);
+  left:50%;
+  transform: translateX(-50%);
+  z-index:4;
+  font-size:.8rem;
+  font-weight:600;
+  color:#fff;
+  background: rgba(23,34,43,.82);
+  padding:8px 16px;
+  border-radius:20px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .2s ease;
+  white-space:nowrap;
+}
+.connection-banner.is-visible{ opacity:1; }
+.connection-banner.is-error{ background: rgba(226,60,47,.9); }
+
+/* ---------- Anuncio de gol ---------- */
+.goal-banner{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(.85);
+  z-index:4;
+  font-family:"Space Grotesk", sans-serif;
+  font-weight:700;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  color:#fff;
+  background: rgba(23,34,43,.82);
+  padding:14px 28px;
+  border-radius:14px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.goal-banner.is-visible{
+  opacity:1;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+/* ---------- Side panel: banner lateral (minimapa) ---------- */
+.side-panel{
+  align-self:start;
+  background: var(--tarjeta);
+  border-radius:14px;
+  padding: 12px;
+  box-shadow: var(--sombra);
+  border:1px solid rgba(23,34,43,.08);
+}
+
+.minimap-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+  font-family:"Space Grotesk", sans-serif;
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.minimap{
+  position:relative;
+  display:block;
+  width:100%;
+  aspect-ratio:16 / 9;
+  overflow:hidden;
+  border:2px solid var(--azul-osc);
+  border-radius:9px;
+  background:#0b1118;
+}
+
+.minimap img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.minimap-grid{
+  position:absolute;
+  inset:0;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0, rgba(255,255,255,.55) 1px, transparent 1px, transparent calc(100% / 10)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.55) 0, rgba(255,255,255,.55) 1px, transparent 1px, transparent calc(100% / 7));
+  pointer-events:none;
+}
+
+.minimap-dot{
+  position:absolute;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  border:2px solid #fff;
+  transform: translate(-50%, -50%);
+  pointer-events:none;
+  z-index:2;
+}
+.minimap-p1-dot{ background: var(--azul); }
+.minimap-p2-dot{ background: var(--amarillo); }
+.minimap-ball-dot{ background: #fff; border-color: var(--tinta); width:6px; height:6px; }

@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGMA-ADSO — Resultados de Aprendizaje y Contenidos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="../assets/css/sofia_plus.css">
+<style>
+  :root{
+    --verde:#39A900; --verde-osc:#2e7d0a; --amarillo:#FDC300;
+    --gris:#f4f5f7; --borde:#dfe3e6; --texto:#22292f; --rojo:#e03131;
+  }
+  *{box-sizing:border-box;}
+  /* El banner, la barra verde y el pie los aporta sofia_plus.css.
+     Aquí solo se adapta el menú de pestañas a la columna fija del sistema. */
+  body{font-family:"Work Sans",Calibri,"Helvetica Neue",Arial,sans-serif;background:#f5f7f5;color:var(--texto);}
+
+  .role-switch{display:flex;gap:6px;margin-left:auto;padding-right:10px;}
+  .role-switch button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.45);color:#fff;
+    padding:5px 13px;border-radius:20px;cursor:pointer;font-size:12.5px;font-family:inherit;white-space:nowrap;}
+  .role-switch button:hover{background:rgba(255,255,255,.28);}
+  .role-switch button.active{background:#fff;color:#005c26;border-color:#fff;font-weight:700;}
+
+  .layout{display:block;}
+  nav.tabs{position:fixed;left:0;top:0;bottom:0;width:270px;padding:0;overflow-y:auto;
+    background:#fff;border-right:1px solid #ddd;z-index:1200;}
+  nav.tabs button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+    text-align:left;background:none;border:none;border-bottom:1px solid #e8e8e8;padding:11px 15px;
+    font-size:14px;font-family:inherit;font-weight:500;color:#007832;cursor:pointer;
+    border-left:3px solid transparent;transition:background .15s;}
+  nav.tabs button:hover{background:#f2faec;}
+  nav.tabs button.active{background:#e9f6e0;border-left-color:#39a900;color:#005c26;font-weight:700;}
+
+  main{margin-left:270px;margin-top:124px;padding:20px 25px;min-height:calc(100vh - 124px);}
+
+  /* Modo embebido: el marco padre ya aporta banner, barra y pie */
+  body.modo-embebido .brandbar,
+  body.modo-embebido .navbar,
+  body.modo-embebido .footer,
+  body.modo-embebido .role-switch,
+  body.modo-embebido .sidebar-marca{display:none;}
+  body.modo-embebido nav.tabs{top:0;}
+  body.modo-embebido main{margin-top:0;min-height:0;}
+
+  @media(max-width:991.98px){
+    nav.tabs{position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid #ddd;}
+    main{margin-left:0;margin-top:124px;}
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  h2.view-title{margin:0 0 4px 0;font-size:20px;}
+  p.view-desc{margin:0 0 18px 0;color:#666;font-size:13.5px;}
+
+  .row-filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  select, input[type=text], input[type=number], textarea{
+    padding:8px 10px;border:1px solid var(--borde);border-radius:5px;font-size:13.5px;font-family:inherit;
+  }
+  textarea{width:100%;resize:vertical;}
+  label{font-size:12.5px;font-weight:600;color:#444;display:block;margin-bottom:4px;}
+  .field{margin-bottom:12px;}
+
+  .btn{border:none;border-radius:5px;padding:8px 16px;font-size:13.5px;cursor:pointer;font-weight:600;}
+  .btn-primary{background:var(--verde);color:#fff;}
+  .btn-primary:hover{background:var(--verde-osc);}
+  .btn-secondary{background:#e9ecef;color:#333;}
+  .btn-secondary:hover{background:#dde1e5;}
+  .btn-amarillo{background:var(--amarillo);color:#2b2200;}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+
+  .card{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:16px;margin-bottom:14px;}
+
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px;}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--borde);text-align:left;vertical-align:middle;}
+  th{background:#f0f2f4;font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;color:#555;}
+  tr:hover td{background:#fafcf8;}
+
+  .progress-wrap{display:flex;align-items:center;gap:8px;min-width:160px;}
+  .progress-bar{flex:1;height:10px;background:#e6e8eb;border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--verde),#67c22a);border-radius:6px;transition:width .3s ease;}
+  .progress-fill.full{background:linear-gradient(90deg,#2e7d0a,var(--verde));}
+  .progress-pct{font-size:12.5px;font-weight:700;width:38px;text-align:right;}
+
+  .badge{padding:3px 9px;border-radius:12px;font-size:11.5px;font-weight:700;}
+  .badge-aprobado{background:#e6f7e0;color:var(--verde-osc);}
+  .badge-proceso{background:#fff4d6;color:#8a6300;}
+
+  .ra-list{max-height:520px;overflow-y:auto;border:1px solid var(--borde);border-radius:6px;}
+  .ra-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #f0f1f3;}
+  .ra-item:last-child{border-bottom:none;}
+  .ra-num{width:26px;height:26px;border-radius:50%;background:var(--verde);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ra-texto{flex:1;font-size:13px;line-height:1.4;}
+  .ra-check{display:flex;align-items:center;gap:8px;flex-shrink:0;cursor:pointer;}
+  .ra-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--verde);cursor:pointer;}
+  .ra-check input[type=checkbox]:disabled{cursor:default;}
+
+  .content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+  .content-card{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:14px;}
+  .content-card .tipo-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:8px;}
+  .tag-cuestionario{background:#e7f0ff;color:#1c5dc9;}
+  .tag-consola{background:#f3e8ff;color:#7b2cbf;}
+  .tag-documentacion{background:#e0f7f7;color:#0e7c7c;}
+  .tag-ejercicio{background:#fff0e0;color:#c9640a;}
+  .content-card h4{margin:0 0 6px 0;font-size:14.5px;}
+  .content-card p{margin:0 0 8px 0;font-size:12.5px;color:#666;}
+
+  .question-block{border:1px solid var(--borde);border-radius:6px;padding:10px;margin-bottom:8px;background:#fafbfc;}
+  .question-block .opt-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+  .question-block input[type=text]{width:100%;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:8px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;}
+  .modal-box h3{margin-top:0;}
+  .modal-close{float:right;cursor:pointer;font-size:18px;color:#888;background:none;border:none;}
+
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--verde-osc);color:#fff;padding:12px 18px;border-radius:6px;font-size:13.5px;box-shadow:0 3px 10px rgba(0,0,0,.2);display:none;z-index:60;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .span-2{grid-column:1/-1;}
+
+  /* Una fila por aprendiz con su barra de avance */
+  .barras-aprendices{display:flex;flex-direction:column;gap:2px;}
+  .barra-aprendiz{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border:none;
+    border-radius:6px;background:none;cursor:pointer;text-align:left;font-family:inherit;
+    border-left:3px solid transparent;transition:background .12s ease,border-color .12s ease;}
+  .barra-aprendiz:hover{background:#f4f8f1;}
+  .barra-aprendiz.activo{background:#eef8e8;border-left-color:var(--verde);}
+  .barra-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#eef2f5;color:#555;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .barra-aprendiz.activo .barra-num{background:var(--verde);color:#fff;}
+  .barra-nombre{flex:0 0 210px;font-size:13px;color:#22292f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .barra-progreso{flex:1;min-width:0;}
+  @media(max-width:700px){.barra-nombre{flex:0 0 130px;}}
+  @media(max-width:700px){.form-grid{grid-template-columns:1fr;} .layout{flex-direction:column;} nav.tabs{width:100%;display:flex;overflow-x:auto;padding:6px;} nav.tabs button{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;} nav.tabs button.active{border-left:none;border-bottom-color:var(--verde);}}
+</style>
+</head>
+<body>
+
+<header class="brandbar">
+  <img class="brandbar-banner" src="../assets/img/SENA/banner.png"
+       alt="SENA/Soft — Plataforma virtual de contenidos para la formación profesional">
+  <div class="brandbar-ava">
+    <img class="ava-escudo" src="../assets/img/SENA/logosena.jpeg" alt="Logosímbolo del SENA">
+    <div>
+      <p class="ava-titulo">AVA</p>
+      <p class="ava-sub">Ambiente Virtual<br>De Aprendizaje</p>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <div class="navbar-user" id="navbarRol">ADMINISTRADOR</div>
+  <div class="role-switch" id="roleSwitch">
+    <button data-role="admin" class="active">Administrador</button>
+    <button data-role="instructor">Instructor</button>
+    <button data-role="aprendiz">Aprendiz</button>
+  </div>
+  <div class="navbar-right">
+    <a class="nav-item" href="aprendiz.html">Aprendiz</a>
+    <a class="nav-item" href="instructor.html">Instructor</a>
+    <a class="nav-item" href="administrador.html">Administrador</a>
+    <a class="nav-item" href="../index.html">Salir ➜</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════ PANEL ADMINISTRADOR ══════════════════════ -->
+<div class="layout panel active" data-panel="admin">
+  <nav class="tabs">
+    <div class="sidebar-marca">
+      <div class="perfil-foto">
+        <img src="../assets/img/SENA/usuario.JPG" alt="Foto de perfil">
+      </div>
+    </div>
+    <div class="sidebar-role">
+      <img class="sidebar-avatar" src="../assets/img/SENA/logosena.jpeg" alt="">
+      <div>
+        <p class="sidebar-nombre">M.A. Castro P.</p>
+        <p class="sidebar-rol">Administrador</p>
+      </div>
+    </div>
+    <button data-view="admin-dashboard" class="active"><img class="ico ico-h2" src="../assets/img/SENA/panel.JPG" alt="Indicadores"> Dashboard RA</button>
+    <button data-view="admin-fichas"><img class="ico ico-h2" src="../assets/img/SENA/organizacion.JPG" alt="Repositorio"> Fichas</button>
+    <button data-view="admin-instructores"><img class="ico ico-h2" src="../assets/img/SENA/pizarra.JPG" alt="Instructor"> Asignar ficha</button>
+    <button data-view="admin-programas"><img class="ico ico-h2" src="../assets/img/SENA/certificado.JPG" alt="Formación"> Programas</button>
+    <button data-view="admin-contenidos"><img class="ico ico-h2" src="../assets/img/SENA/desagrupar.JPG" alt="Contenido"> Crear contenido</button>
+    <button data-view="admin-asignar"><img class="ico ico-h2" src="../assets/img/SENA/manoselect.JPG" alt="Asignar"> Asignar contenido</button>
+    <button data-view="admin-reportes"><img class="ico ico-h2" src="../assets/img/iconos/documento.svg" alt="Documento"> Notas y reportes</button>
+  </nav>
+  <main>
+
+    <!-- DASHBOARD -->
+    <section class="view active" id="admin-dashboard">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/panel.JPG" alt="Indicadores"> Resultados de Aprendizaje por Ficha</h2>
+      <p class="view-desc">Consulta el avance numérico de cada resultado de aprendizaje (RA). 100% equivale a "Aprobado".</p>
+      <div class="row-filters">
+        <div><label>Ficha</label><select id="admFicha"></select></div>
+        <div><label>Aprendiz</label><select id="admAprendiz"></select></div>
+      </div>
+      <div class="card" id="admFichaCard"></div>
+      <div class="card" id="admAgregadoCard"></div>
+      <div class="card">
+        <h4 style="margin-top:0;">Resultados de aprendizaje (numérico)</h4>
+        <div class="ra-list" id="admRaList"></div>
+      </div>
+    </section>
+
+    <!-- FICHAS -->
+    <section class="view" id="admin-fichas">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/organizacion.JPG" alt="Repositorio"> Consulta de varias fichas</h2>
+      <p class="view-desc">Avance promedio de resultados de aprendizaje por ficha.</p>
+      <div class="row-filters">
+      </div>
+      <table>
+        <thead><tr><th>Ficha</th><th>Aprendices</th><th>Avance promedio</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="fichasTbody"></tbody>
+      </table>
+    </section>
+
+    <!-- ASIGNAR FICHA A INSTRUCTOR -->
+    <section class="view" id="admin-instructores">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/pizarra.JPG" alt="Instructor"> Asignar ficha a un instructor</h2>
+      <p class="view-desc">Registre un instructor nuevo y entréguele una ficha. Cada ficha admite un instructor titular.</p>
+
+      <div class="card">
+        <h4 style="margin-top:0;">Nueva asignación</h4>
+        <form id="formAsignarFicha">
+          <div class="form-grid">
+            <div><label>Nombre del instructor</label>
+              <input type="text" id="nvaNombre" placeholder="Ej: Zulma Salas"></div>
+            <div><label>Documento</label>
+              <input type="text" id="nvaDocumento" placeholder="Ej: 1049634950"></div>
+            <div><label>Ficha</label>
+              <select id="nvaFicha"></select></div>
+            <div class="span-2"><label>Observaciones</label>
+              <input type="text" id="nvaNota" placeholder="Jornada, fecha de inicio u otra anotación"></div>
+          </div>
+          <button class="btn btn-primary" type="submit">Asignar ficha</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">Fichas asignadas</h4>
+        <table>
+          <thead><tr><th>Ficha</th><th>Programa</th><th>Instructor</th><th>Documento</th><th>Aprendices</th><th>Avance</th><th></th></tr></thead>
+          <tbody id="asigTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PROGRAMAS -->
+    <section class="view" id="admin-programas">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/certificado.JPG" alt="Formación"> Consulta de varios programas de formación</h2>
+      <p class="view-desc">Vista consolidada de todos los programas registrados.</p>
+      <table>
+        <thead><tr><th>Programa</th><th>Nº de RA</th><th>Fichas</th><th>Avance promedio</th></tr></thead>
+        <tbody id="programasTbody"></tbody>
+      </table>
+    </section>
+
+    <!-- CREAR CONTENIDO -->
+    <section class="view" id="admin-contenidos">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/desagrupar.JPG" alt="Contenido"> Crear contenido</h2>
+      <p class="view-desc">Cuestionarios (10-30 preguntas), consola de práctica de código, documentación y ejercicios.</p>
+      <div class="card">
+        <div class="field">
+          <label>Tipo de contenido</label>
+          <select id="tipoContenido" onchange="renderFormContenido()">
+            <option value="cuestionario">Cuestionario</option>
+            <option value="consola">Consola de práctica de código</option>
+            <option value="documentacion">Documentación</option>
+            <option value="ejercicio">Ejercicio</option>
+          </select>
+        </div>
+        <div id="formContenidoWrap"></div>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">Biblioteca de contenidos creados</h4>
+        <div class="content-grid" id="bibliotecaContenidos"></div>
+      </div>
+    </section>
+
+    <!-- ASIGNAR -->
+    <section class="view" id="admin-asignar">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/manoselect.JPG" alt="Asignar"> Asignar contenido</h2>
+      <p class="view-desc">El contenido asignado queda disponible en la sección de consulta del instructor y del aprendiz.</p>
+      <div class="card">
+        <div class="form-grid">
+          <div class="field"><label>Contenido</label><select id="asigContenido"></select></div>
+          <div class="field"><label>Programa</label><select id="asigPrograma"></select></div>
+          <div class="field"><label>Ficha</label><select id="asigFicha"></select></div>
+          <div class="field"><label>Rol destino</label>
+            <select id="asigRol">
+              <option value="ambos">Instructor y Aprendiz</option>
+              <option value="instructor">Solo Instructor</option>
+              <option value="aprendiz">Solo Aprendiz</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="asignarContenido()">📌 Asignar</button>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">Asignaciones activas</h4>
+        <table>
+          <thead><tr><th>Contenido</th><th>Ficha</th><th>Rol</th><th>Fecha</th><th></th></tr></thead>
+          <tbody id="asignacionesTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REPORTES -->
+    <section class="view" id="admin-reportes">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/iconos/documento.svg" alt="Documento"> Notas y reportes por aprendiz</h2>
+      <div class="row-filters">
+        <div><label>Ficha</label><select id="repFicha"></select></div>
+        <div><label>Aprendiz</label><select id="repAprendiz"></select></div>
+      </div>
+      <div class="card" id="repContenido"></div>
+      <button class="btn btn-amarillo" onclick="window.print()">🖨️ Imprimir / Exportar reporte</button>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══════════════════════ PANEL INSTRUCTOR ══════════════════════ -->
+<div class="layout panel" data-panel="instructor">
+  <nav class="tabs">
+    <div class="sidebar-marca">
+      <div class="perfil-foto">
+        <img src="../assets/img/SENA/usuario.JPG" alt="Foto de perfil">
+      </div>
+    </div>
+    <div class="sidebar-role">
+      <img class="sidebar-avatar" src="../assets/img/SENA/logosena.jpeg" alt="">
+      <div>
+        <p class="sidebar-nombre">Zulma Salas</p>
+        <p class="sidebar-rol">Instructora</p>
+      </div>
+    </div>
+    <button data-view="ins-ficha" class="active"><img class="ico ico-h2" src="../assets/img/iconos/grupo.svg" alt="Aprendices"> Mi ficha</button>
+    <button data-view="ins-contenidos"><img class="ico ico-h2" src="../assets/img/iconos/contenidos.svg" alt="Contenidos"> Contenidos asignados</button>
+    <button data-view="ins-reportes"><img class="ico ico-h2" src="../assets/img/iconos/documento.svg" alt="Documento"> Notas y reportes</button>
+  </nav>
+  <main>
+    <section class="view active" id="ins-ficha">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/iconos/grupo.svg" alt="Aprendices"> Avance de mi ficha</h2>
+      <p class="view-desc">Consulta y ajusta el avance de los resultados de aprendizaje de tus aprendices.</p>
+      <div class="row-filters">
+        <div><label>Ficha</label><select id="insFicha"></select></div>
+        <div><label>Aprendiz</label><select id="insAprendiz"></select></div>
+      </div>
+      <div class="card" id="insFichaCard"></div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">Avance por aprendiz <span class="badge badge-proceso" id="insTotalAprendices"></span></h4>
+        <p class="view-desc" style="margin-top:4px;">Pulse un aprendiz para ver y ajustar sus resultados de aprendizaje.</p>
+        <div class="barras-aprendices" id="insBarras"></div>
+      </div>
+
+      <div class="card" id="insAgregadoCard"></div>
+      <div class="card">
+        <h4 style="margin-top:0;">Resultados de aprendizaje</h4>
+        <div class="ra-list" id="insRaList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="ins-contenidos">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/iconos/contenidos.svg" alt="Contenidos"> Contenidos asignados</h2>
+      <p class="view-desc">Contenido publicado por el administrador para el rol Instructor.</p>
+      <div class="row-filters">
+        <div><label>Ficha</label><select id="insContFicha"></select></div>
+      </div>
+      <div class="content-grid" id="insContenidosGrid"></div>
+    </section>
+
+    <section class="view" id="ins-reportes">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/iconos/documento.svg" alt="Documento"> Notas y reportes</h2>
+      <div class="row-filters">
+        <div><label>Ficha</label><select id="insRepFicha"></select></div>
+      </div>
+      <table>
+        <thead><tr><th>Aprendiz</th><th>Avance RA</th><th>Nota (escala 1-5)</th><th>Estado</th></tr></thead>
+        <tbody id="insReportesTbody"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<!-- ══════════════════════ PANEL APRENDIZ ══════════════════════ -->
+<div class="layout panel" data-panel="aprendiz">
+  <nav class="tabs">
+    <div class="sidebar-marca">
+      <div class="perfil-foto">
+        <img src="../assets/img/SENA/usuario.JPG" alt="Foto de perfil">
+      </div>
+    </div>
+    <div class="sidebar-role">
+      <img class="sidebar-avatar" src="../assets/img/SENA/logosena.jpeg" alt="">
+      <div>
+        <p class="sidebar-nombre">Aprendiz</p>
+        <p class="sidebar-rol">Aprendiz</p>
+      </div>
+    </div>
+    <button data-view="apr-progreso" class="active"><img class="ico ico-h2" src="../assets/img/SENA/panel.JPG" alt="Avance"> Mi progreso</button>
+    <button data-view="apr-contenidos"><img class="ico ico-h2" src="../assets/img/iconos/contenidos.svg" alt="Contenidos"> Contenidos disponibles</button>
+  </nav>
+  <main>
+    <section class="view active" id="apr-progreso">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/SENA/panel.JPG" alt="Avance"> Mi progreso — Resultados de Aprendizaje</h2>
+      <div class="row-filters">
+        <div><label>Ficha</label><select id="aprFicha"></select></div>
+        <div><label>Soy</label><select id="aprYo"></select></div>
+      </div>
+      <div class="card" id="aprAgregadoCard"></div>
+      <div class="card">
+        <h4 style="margin-top:0;">Detalle por resultado de aprendizaje</h4>
+        <div class="ra-list" id="aprRaList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="apr-contenidos">
+      <h2 class="view-title"><img class="ico ico-h2" src="../assets/img/iconos/contenidos.svg" alt="Contenidos"> Contenidos disponibles</h2>
+      <p class="view-desc">Cuestionarios, consola de práctica, documentación y ejercicios asignados por tu instructor.</p>
+      <div class="content-grid" id="aprContenidosGrid"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════ DATOS BASE ═══════════════ */
+const RA_ADSO = ["Caracterizar los procesos de la organización de acuerdo con el software a construir.", "Recolectar información del software a construir de acuerdo con las necesidades del cliente.", "Establecer los requisitos del software de acuerdo con la información recolectada.", "Validar el informe de requisitos de acuerdo con las necesidades del cliente.", "Alistar herramientas de tecnologías de la información y la comunicación (TIC), de acuerdo con las necesidades de procesamiento de información y comunicación.", "Aplicar funcionalidades de herramientas y servicios TIC, de acuerdo con manuales de uso, procedimientos establecidos y buenas prácticas.", "Evaluar los resultados, de acuerdo con los requerimientos.", "Optimizar los resultados, de acuerdo con la verificación.", "Comprender información sobre situaciones cotidianas y laborales actuales y futuras a través de interacciones sociales de forma oral y escrita.", "Planear actividades de análisis de acuerdo con la metodología seleccionada.", "Modelar las funciones del software de acuerdo con el informe de requisitos.", "Verificar los modelos realizados en la fase de análisis de acuerdo con lo establecido en el informe de requisitos.", "Intercambiar opiniones sobre situaciones cotidianas y laborales actuales, pasadas y futuras en contextos sociales orales y escritos.", "Definir especificaciones técnicas del software de acuerdo con las características del software a construir.", "Elaborar propuesta técnica del software de acuerdo con las especificaciones técnicas definidas", "Validar las condiciones de la propuesta técnica del software de acuerdo con los intereses de las partes.", "Identificar modelos matemáticos de acuerdo con los requerimientos del problema planteado en contextos sociales y productivo.", "Plantear problemas matemáticos a partir de situaciones generadas en el contexto social y productivo.", "Resolver problemas matemáticos a partir de situaciones generadas en el contexto social y productivo.", "Proponer acciones de mejora frente a los resultados de los procedimientos matemáticos de acuerdo con el problema planteado.", "Desarrollar procesos lógicos a través de la implementación de algoritmos.", "Identificar los principios y leyes de la física en la solución de problemas de acuerdo al contexto productivo.", "Solucionar problemas asociados con el sector productivo con base en los principios y leyes de la física.", "Verificar las transformaciones físicas de la materia utilizando herramientas tecnológicas.", "Proponer acciones de mejora en los procesos productivos de acuerdo con los principios y leyes de la física.", "Discutir sobre posibles soluciones a problemas dentro de un rango variado de contextos sociales y laborales.", "Elaborar los artefactos de diseño del software siguiendo las prácticas de la metodología seleccionada.", "Estructurar el modelo de datos del software de acuerdo con las especificaciones del análisis.", "Verificar los entregables de la fase de diseño del software de acuerdo con lo establecido en el informe de análisis.", "Analizar los componentes de la comunicación según sus características, intencionalidad y contexto.", "Argumentar en forma oral y escrita atendiendo las exigencias y particularidades de las diversas situaciones comunicativas mediante los distintos sistemas de representación.", "Relacionar los procesos comunicativos teniendo en cuenta criterios de lógica y racionalidad.", "Establecer procesos de enriquecimiento lexical y acciones de mejoramiento en el desarrollo de procesos comunicativos según requerimientos del contexto.", "Implementar acciones de mejora relacionadas con el uso de expresiones, estructuras y desempeño según los resultados de aprendizaje formulados para el programa.", "Determinar las características técnicas de la interfaz gráfica del software adoptando estándares.", "Analizar el contexto productivo según sus características y necesidades.", "Estructurar el proyecto de acuerdo a criterios de la investigación.", "Argumentar aspectos teóricos del proyecto según referentes nacionales e internacionales.", "Proponer soluciones a las necesidades del contexto según resultados de la investigación.", "Presentar un proceso para la realización de una actividad en su quehacer laboral de acuerdo con los procedimientos establecidos desde su programa de formación.", "Construir la base de datos para el software a partir del modelo de datos.", "Crear componentes frontend del software de acuerdo con el diseño.", "Desarrollar habilidades psicomotrices en el contexto productivo y social.", "Practicar hábitos saludables mediante la aplicación de fundamentos de nutrición e higiene.", "Ejecutar actividades de acondicionamiento físico orientadas hacia el mejoramiento de la condición física en los contextos productivo y social.", "Implementar un plan de ergonomía y pausas activas según las características de la función productiva.", "Explicar las funciones de su ocupación laboral usando expresiones de acuerdo al nivel requerido por el programa de formación.", "Planear actividades de construcción del software de acuerdo con el diseño establecido.", "Codificar el software de acuerdo con el diseño establecido.", "Analizar las estrategias para la prevención y control de los impactos ambientales y de los accidentes y enfermedades laborales (ATEL), de acuerdo con las políticas organizacionales y el entorno social.", "Implementar estrategias para el control de los impactos ambientales y de los accidentes y enfermedades de acuerdo con los planes y programas establecidos por la organización.", "Realizar seguimiento y acompañamiento al desarrollo de los planes y programas ambientales y SST, según el área de desempeño.", "Proponer acciones de mejora para el manejo ambiental y el control de la SST, de acuerdo con estrategias de trabajo, colaborativo, cooperativo y coordinado en el contexto productivo y social.", "Realizar pruebas al software para verificar su funcionalidad.", "Promover mi dignidad y la del otro a partir de los principios y valores éticos como aporte en la instauración de una cultura de paz.", "Establecer relaciones de crecimiento personal y comunitario a partir del bien común como aporte para el desarrollo social.", "Promover el uso racional de los recursos naturales a partir de criterios de sostenibilidad y sustentabilidad ética y normativa vigente.", "Contribuir con el fortalecimiento de la cultura de paz a partir de la dignidad humana y las estrategias para la transformación de conflictos.", "Incorporar actividades de aseguramiento de la calidad del software de acuerdo con estándares de la industria.", "Verificar la calidad del software de acuerdo con las prácticas asociadas en los procesos de desarrollo.", "Realizar actividades de mejora de la calidad del software a partir de los resultados de la verificación.", "Valorar la importancia de la ciudadanía laboral con base en el estudio de los derechos humanos y fundamentales del trabajo.", "Practicar los derechos fundamentales del trabajo de acuerdo con la Constitución Política y los convenios internacionales.", "Reconocer el trabajo como factor de movilidad social y transformación vital con referencia a la fenomenología y a los derechos fundamentales en el trabajo.", "Participar en acciones solidarias teniendo en cuenta el ejercicio de los derechos humanos, de los pueblos y de la naturaleza.", "Planear actividades de implantación del software de acuerdo con las condiciones de la solución informática.", "Desplegar el software de acuerdo con la arquitectura y las políticas establecidas.", "Documentar el proceso de implantación de software siguiendo estándares de calidad.", "Implantar el software de acuerdo con los niveles de servicio establecidos con el cliente.", "Integrar elementos de la cultura emprendedora teniendo en cuenta el perfil personal y el contexto de desarrollo social.", "Caracterizar la idea de negocio teniendo en cuenta las oportunidades y necesidades del sector productivo y social.", "Estructurar el plan de negocio de acuerdo con las características empresariales y tendencias de mercado.", "Valorar la propuesta de negocio conforme con su estructura y necesidades del sector productivo y social."];
+
+const RA_MULTIMEDIA = [
+  "Analizar los requerimientos del proyecto multimedia de acuerdo con las necesidades del cliente.",
+  "Diseñar el guion y storyboard según los lineamientos del proyecto.",
+  "Capturar y editar material audiovisual de acuerdo con los estándares técnicos definidos.",
+  "Aplicar efectos y composición digital según el diseño aprobado.",
+  "Integrar elementos multimedia (audio, video, gráficos) en la pieza final.",
+  "Verificar la calidad del producto multimedia de acuerdo con los requisitos del cliente.",
+  "Publicar y distribuir el contenido multimedia según los canales definidos.",
+  "Documentar el proceso de producción siguiendo estándares de calidad.",
+  "Proponer mejoras al producto final de acuerdo con la retroalimentación recibida.",
+  "Gestionar los derechos de autor y licenciamiento del material utilizado."
+];
+
+/* Un solo programa y dos fichas: la que está en curso con sus 27 aprendices
+   matriculados, y una vacante que el administrador puede asignar. */
+const PROGRAMA = 'adso';
+const FICHA_ACTIVA = '3293836';
+const FICHA_NUEVA  = '2';
+const PROGRAMAS = [
+  { id:'adso', nombre:'Análisis y Desarrollo de Software (ADSO)', ra: RA_ADSO,
+    fichas:[ {id:FICHA_ACTIVA}, {id:FICHA_NUEVA} ] }
+];
+
+/* Nómina real de la ficha 3293836, tomada del Directorio ADSO. */
+const NOMBRES = [
+  'Arevalo Otalora, Yesika Paola',
+  'Avendaño Ruiz, Sara Valentina',
+  'Barreto Soler, Kevin Sair',
+  'Bulla Mateus, Luis Eduardo',
+  'Castillo Corredor, Yohan Sebastian',
+  'Castro Pacheco, Miguel Arturo',
+  'Cative Garcia, Mauro Alexandro',
+  'Cañon Torres, Michaell Andrey',
+  'Cristancho Fernandez, Karen Lizbeth',
+  'Estupiñan Zorro, Maria Juliana',
+  'Gonzalez Rodriguez, Martha Yised',
+  'Guerrero Vanegas, Nicolas',
+  'Guio Guio, Juan Jose Guillermo',
+  'Hernandez Malaver, Juan Sebastian',
+  'Lopez La Rotta, Julian David',
+  'Martinez Rubio, Rodrigo',
+  'Molina Ramirez, Yeison David',
+  'Moreno Sanchez, Santiago Esteban',
+  'Niño Lopez, Miguel Angel',
+  'Noguera Vega, Raul Alberto',
+  'Orjuela Castillo, Marlon Kaled',
+  'Paipa Jimenez, Jose David',
+  'Prieto Penagos, Leidy Lorena',
+  'Puerto Salamanca, Ricardo Esteban',
+  'Reyes Robles, Juan Carlos',
+  'Santamaria Sotomonte, Juan Camilo',
+  'Sarmiento Serrano, Luisa Fernanda'
+];
+
+function programaById(id){ return PROGRAMAS.find(p=>p.id===id); }
+function programaByFicha(fichaId){ return PROGRAMAS.find(p=>p.fichas.some(f=>f.id===fichaId)); }
+const APRENDICES_FICHA_NUEVA = 20;
+function aprendicesDeFicha(fichaId){
+  // La ficha en curso lleva la nómina real; la nueva usa marcadores numerados
+  if(fichaId === FICHA_ACTIVA) return NOMBRES.map((n,i)=>({id:fichaId+'-a'+i, nombre:n}));
+  return Array.from({length:APRENDICES_FICHA_NUEVA},
+                    (_,i)=>({id:fichaId+'-a'+i, nombre:'Aprendiz '+(i+1)}));
+}
+function promedioFicha(fichaId, raList){
+  const aprendices = aprendicesDeFicha(fichaId);
+  if(!aprendices.length) return 0;
+  return Math.round(aprendices.reduce((s,a)=> s+avgProgress(fichaId,a.id,raList),0)/aprendices.length);
+}
+
+/* ═══════════════ PROGRESO (persistente en localStorage) ═══════════════ */
+function hash101(str){
+  let h=0;
+  for(let i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))>>>0; }
+  return h % 101;
+}
+function overrides(){ return JSON.parse(localStorage.getItem('sgma_progreso')||'{}'); }
+/* Cada resultado de aprendizaje es BOOLEANO: aprobado (true) o pendiente (false) */
+function getProgress(fichaId, aprendizId, raIndex){
+  const key = fichaId+'_'+aprendizId+'_'+raIndex;
+  const ov = overrides();
+  if(key in ov) return !!ov[key];
+  return hash101(key) >= 55; /* valor semilla determinístico para la demo */
+}
+function setProgress(fichaId, aprendizId, raIndex, value){
+  const ov = overrides();
+  ov[fichaId+'_'+aprendizId+'_'+raIndex] = !!value;
+  localStorage.setItem('sgma_progreso', JSON.stringify(ov));
+}
+/* Barra TOTAL: % de resultados de aprendizaje marcados como aprobados (true) */
+function avgProgress(fichaId, aprendizId, raList){
+  let aprobados=0;
+  raList.forEach((_,i)=> { if(getProgress(fichaId, aprendizId, i)) aprobados++; });
+  return Math.round((aprobados / raList.length) * 100);
+}
+
+/* ═══════════════ CONTENIDOS Y ASIGNACIONES ═══════════════ */
+function getContenidos(){ return JSON.parse(localStorage.getItem('sgma_contenidos')||'[]'); }
+function saveContenidos(list){ localStorage.setItem('sgma_contenidos', JSON.stringify(list)); }
+function getAsignaciones(){ return JSON.parse(localStorage.getItem('sgma_asignaciones')||'[]'); }
+function saveAsignaciones(list){ localStorage.setItem('sgma_asignaciones', JSON.stringify(list)); }
+
+function seedContenidosSiVacio(){
+  if(getContenidos().length) return;
+  saveContenidos([
+    {id:'c1', tipo:'cuestionario', titulo:'Fundamentos de modelado de datos en Excel', ra:0,
+     preguntas:[
+       {enunciado:'¿Qué función permite buscar un valor y devolver datos de otra columna?', opciones:['BUSCARV','SUMA','CONCATENAR','PROMEDIO'], correcta:0},
+       {enunciado:'¿Qué representa una tabla dinámica?', opciones:['Un resumen interactivo de datos','Un gráfico estático','Una macro','Un formulario'], correcta:0}
+     ], fecha:new Date().toLocaleDateString('es-CO')},
+    {id:'c2', tipo:'consola', titulo:'Práctica: Estructuras condicionales en JavaScript', lenguaje:'JavaScript',
+     enunciado:'Escribe una función que reciba un número y determine si es par o impar.',
+     codigoBase:'function esPar(n) {\n  // tu código aquí\n}', salidaEsperada:'esPar(4) -> true', fecha:new Date().toLocaleDateString('es-CO')},
+    {id:'c3', tipo:'documentacion', titulo:'Guía de estilo para bases de datos relacionales',
+     contenido:'1. Usar nombres en minúsculas y snake_case.\n2. Definir siempre llave primaria.\n3. Normalizar hasta 3FN cuando sea posible.', fecha:new Date().toLocaleDateString('es-CO')},
+    {id:'c4', tipo:'ejercicio', titulo:'Diseño de modelo entidad-relación', nivel:'Intermedio',
+     descripcion:'Diseñar el modelo E-R para un sistema de gestión de inventario con al menos 4 entidades.', fecha:new Date().toLocaleDateString('es-CO')}
+  ]);
+}
+seedContenidosSiVacio();
+
+/* ═══════════════ HELPERS UI ═══════════════ */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display='block';
+  setTimeout(()=> t.style.display='none', 2200);
+}
+function openModal(html){
+  document.getElementById('modalBox').innerHTML = '<button class="modal-close" onclick="closeModal()">✕</button>' + html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+
+function progressRowHTML(pct){
+  const cls = pct>=100 ? 'progress-fill full' : 'progress-fill';
+  return `<div class="progress-wrap"><div class="progress-bar"><div class="${cls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>`;
+}
+function estadoBadge(pct){
+  return pct>=100 ? '<span class="badge badge-aprobado">Aprobado</span>' : '<span class="badge badge-proceso">En proceso</span>';
+}
+
+function fillSelect(sel, items, labelFn, valueFn){
+  sel.innerHTML = items.map(it=>`<option value="${valueFn(it)}">${labelFn(it)}</option>`).join('');
+}
+
+/* ═══════════════ NAVEGACIÓN (roles y pestañas) ═══════════════ */
+const ETIQUETA_ROL = { admin:'ADMINISTRADOR', instructor:'INSTRUCTORA', aprendiz:'APRENDIZ' };
+
+function mostrarPanel(role){
+  document.querySelectorAll('#roleSwitch button')
+    .forEach(b=> b.classList.toggle('active', b.dataset.role===role));
+  document.querySelectorAll('.panel')
+    .forEach(p=> p.classList.toggle('active', p.dataset.panel===role));
+  document.getElementById('navbarRol').textContent = ETIQUETA_ROL[role] || '';
+}
+
+document.getElementById('roleSwitch').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  mostrarPanel(btn.dataset.role);
+});
+
+/* El rol llega desde el menú de cada panel: ...?rol=instructor */
+function abrirRolDeLaURL(){
+  const params = new URLSearchParams(window.location.search);
+  const rol = params.get('rol');
+  if(['admin','instructor','aprendiz'].includes(rol)) mostrarPanel(rol);
+  // Dentro de un iframe se oculta el chrome para no duplicarlo
+  if(params.get('embed') === '1') document.body.classList.add('modo-embebido');
+}
+
+/* El índice llega desde el login: identifica al aprendiz dentro de la nómina. */
+function fijarAprendizDeLaURL(){
+  const indice = new URLSearchParams(window.location.search).get('i');
+  if(indice === null || !/^\d+$/.test(indice)) return;
+
+  const opcion = aprYo.options[Number(indice)];
+  if(!opcion) return;
+
+  aprYo.value = opcion.value;
+  // Queda identificado: no debe poder consultar el avance de sus compañeros
+  aprYo.disabled = true;
+  aprYo.title = 'Identificado desde el ingreso';
+  renderAprRA();
+}
+
+document.querySelectorAll('nav.tabs').forEach(nav=>{
+  nav.addEventListener('click', e=>{
+    const btn = e.target.closest('button'); if(!btn) return;
+    nav.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = nav.closest('.panel');
+    panel.querySelectorAll('.view').forEach(v=> v.classList.toggle('active', v.id===btn.dataset.view));
+  });
+});
+
+/* ═══════════════ ADMIN: DASHBOARD RA ═══════════════ */
+const admFicha = document.getElementById('admFicha'), admAprendiz = document.getElementById('admAprendiz');
+
+function initAdminDashboard(){
+  admFicha.addEventListener('change', renderAdminAprendices);
+  admAprendiz.addEventListener('change', renderAdminRA);
+  renderAdminFichas();
+}
+function renderAdminFichas(){
+  const prog = programaById(PROGRAMA);
+  fillSelect(admFicha, prog.fichas, f=>'Ficha '+f.id, f=>f.id);
+  renderAdminAprendices();
+}
+function renderAdminAprendices(){
+  const aprendices = aprendicesDeFicha(admFicha.value);
+  fillSelect(admAprendiz, aprendices, a=>a.nombre, a=>a.id);
+  renderAdminRA();
+}
+function renderAdminRA(){
+  const prog = programaById(PROGRAMA);
+  const fichaId = admFicha.value, aprendizId = admAprendiz.value;
+  const avg = avgProgress(fichaId, aprendizId, prog.ra);
+
+  // Barra de toda la ficha: promedio de sus aprendices, no de uno solo
+  const aprendices = aprendicesDeFicha(fichaId);
+  const avgFicha = Math.round(
+    aprendices.reduce((s,a)=> s+avgProgress(fichaId, a.id, prog.ra), 0) / aprendices.length);
+  const titular = getInstructores().find(a=> a.fichaId===fichaId);
+
+  document.getElementById('admFichaCard').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div><strong>Avance global de la ficha ${fichaId}</strong>
+        <div style="font-size:12px;color:#777;">${prog.nombre} · ${aprendices.length} aprendices ·
+          Instructor: ${titular ? titular.nombre : 'sin asignar'}</div>
+      </div>${estadoBadge(avgFicha)}
+    </div>
+    <div style="margin-top:10px;">${progressRowHTML(avgFicha)}</div>`;
+
+  document.getElementById('admAgregadoCard').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div><strong>Avance total de resultados de aprendizaje</strong><div style="font-size:12px;color:#777;">Ficha ${fichaId} — ${prog.ra.length} RA evaluados</div></div>
+      ${estadoBadge(avg)}
+    </div>
+    <div style="margin-top:10px;">${progressRowHTML(avg)}</div>`;
+
+  document.getElementById('admRaList').innerHTML = prog.ra.map((texto,i)=>{
+    const aprobado = getProgress(fichaId, aprendizId, i);
+    return `<div class="ra-item">
+      <div class="ra-num">${i+1}</div>
+      <div class="ra-texto">${texto}</div>
+      <label class="ra-check">
+        <input type="checkbox" ${aprobado?'checked':''}
+          onchange="setProgress('${fichaId}','${aprendizId}',${i}, this.checked); renderAdminRA();">
+        <span class="badge ${aprobado?'badge-aprobado':'badge-proceso'}">${aprobado?'Aprobado':'Pendiente'}</span>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════ ADMIN: ASIGNACIÓN DE FICHAS A INSTRUCTORES ═══════════════ */
+function getInstructores(){
+  const guardado = localStorage.getItem('sgma_instructores');
+  if(guardado) return JSON.parse(guardado);
+  // Titular de la ficha en curso, tomado de la formación real
+  return [{ fichaId: FICHA_ACTIVA, programaId: PROGRAMA, nombre: 'Zulma Salas',
+            documento: '123456789', nota: 'Jornada mañana', fecha: '' }];
+}
+function saveInstructores(list){ localStorage.setItem('sgma_instructores', JSON.stringify(list)); }
+
+function initAsignarFicha(){
+  renderAsigFichas();
+
+  document.getElementById('formAsignarFicha').addEventListener('submit', e=>{
+    e.preventDefault();
+    const nombre = document.getElementById('nvaNombre').value.trim();
+    const documento = document.getElementById('nvaDocumento').value.trim();
+    const fichaId = document.getElementById('nvaFicha').value;
+
+    if(!nombre || !documento){ toast('Indique nombre y documento del instructor.'); return; }
+
+    const lista = getInstructores();
+    // Una ficha solo puede tener un instructor titular: la nueva asignación releva a la anterior
+    const previa = lista.find(a=> a.fichaId===fichaId);
+    if(previa && !confirm(`La ficha ${fichaId} ya está asignada a ${previa.nombre}. ¿Reemplazarlo por ${nombre}?`)) return;
+
+    const restantes = lista.filter(a=> a.fichaId!==fichaId);
+    restantes.push({
+      fichaId: fichaId,
+      programaId: PROGRAMA,
+      nombre: nombre,
+      documento: documento,
+      nota: document.getElementById('nvaNota').value.trim(),
+      fecha: new Date().toLocaleDateString('es-CO')
+    });
+    saveInstructores(restantes);
+
+    e.target.reset();
+    renderAsigFichas();
+    toast(`Ficha ${fichaId} asignada a ${nombre}.`);
+  });
+}
+
+function renderAsigFichas(){
+  const prog = programaById(PROGRAMA);
+  fillSelect(document.getElementById('nvaFicha'), prog.fichas, f=>'Ficha '+f.id, f=>f.id);
+  renderAsigTabla();
+}
+
+function renderAsigTabla(){
+  const asignados = getInstructores();
+  const filas = PROGRAMAS.flatMap(prog => prog.fichas.map(f=>{
+    const aprendices = aprendicesDeFicha(f.id);
+    const avg = promedioFicha(f.id, prog.ra);
+    const asignacion = asignados.find(a=> a.fichaId===f.id);
+    return `<tr>
+      <td><strong>${f.id}</strong></td>
+      <td>${prog.nombre}</td>
+      <td>${asignacion ? asignacion.nombre : '<span class="badge badge-proceso">Sin asignar</span>'}</td>
+      <td>${asignacion ? asignacion.documento : '—'}</td>
+      <td>${aprendices.length}</td>
+      <td>${progressRowHTML(avg)}</td>
+      <td>${asignacion ? `<button class="btn btn-secondary btn-sm" onclick="quitarAsignacion('${f.id}')">Liberar</button>` : ''}</td>
+    </tr>`;
+  }));
+  document.getElementById('asigTbody').innerHTML = filas.join('');
+}
+
+function quitarAsignacion(fichaId){
+  if(!confirm(`¿Liberar la ficha ${fichaId} de su instructor?`)) return;
+  saveInstructores(getInstructores().filter(a=> a.fichaId!==fichaId));
+  renderAsigTabla();
+  toast(`Ficha ${fichaId} liberada.`);
+}
+
+/* ═══════════════ ADMIN: FICHAS ═══════════════ */
+function initAdminFichasView(){ renderFichasTable(); }
+function renderFichasTable(){
+  const prog = programaById(PROGRAMA);
+  document.getElementById('fichasTbody').innerHTML = prog.fichas.map(f=>{
+    const aprendices = aprendicesDeFicha(f.id);
+    const avg = promedioFicha(f.id, prog.ra);
+    return `<tr>
+      <td><strong>Ficha ${f.id}</strong></td>
+      <td>${aprendices.length}</td>
+      <td>${progressRowHTML(avg)}</td>
+      <td>${estadoBadge(avg)}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="irAFichaDashboard('${prog.id}','${f.id}')">Ver detalle</button></td>
+    </tr>`;
+  }).join('');
+}
+function irAFichaDashboard(progId, fichaId){
+  document.querySelector('nav.tabs button[data-view="admin-dashboard"]').click();
+  renderAdminFichas(); admFicha.value = fichaId; renderAdminAprendices();
+}
+
+/* ═══════════════ ADMIN: PROGRAMAS ═══════════════ */
+function renderProgramasTable(){
+  document.getElementById('programasTbody').innerHTML = PROGRAMAS.map(prog=>{
+    let total=0, count=0;
+    prog.fichas.forEach(f=>{
+      aprendicesDeFicha(f.id).forEach(a=>{ total += avgProgress(f.id,a.id,prog.ra); count++; });
+    });
+    const avg = count ? Math.round(total/count) : 0;
+    return `<tr><td><strong>${prog.nombre}</strong></td><td>${prog.ra.length}</td><td>${prog.fichas.length}</td><td>${progressRowHTML(avg)}</td></tr>`;
+  }).join('');
+}
+
+/* ═══════════════ ADMIN: CREAR CONTENIDO ═══════════════ */
+function renderFormContenido(){
+  const tipo = document.getElementById('tipoContenido').value;
+  const wrap = document.getElementById('formContenidoWrap');
+  if(tipo==='cuestionario'){
+    wrap.innerHTML = `
+      <div class="form-grid">
+        <div class="field"><label>Título del cuestionario</label><input type="text" id="q-titulo" placeholder="Ej: Evaluación RA03"></div>
+        <div class="field"><label>Nº de preguntas (10 a 30)</label><input type="number" id="q-cantidad" min="10" max="30" value="10"></div>
+      </div>
+      <button class="btn btn-secondary" onclick="generarPreguntas()">🧩 Generar plantilla de preguntas</button>
+      <div id="q-preguntas" style="margin-top:12px;"></div>
+      <button class="btn btn-primary" style="margin-top:10px;" onclick="guardarCuestionario()">💾 Guardar cuestionario</button>`;
+  } else if(tipo==='consola'){
+    wrap.innerHTML = `
+      <div class="form-grid">
+        <div class="field"><label>Título</label><input type="text" id="c-titulo" placeholder="Ej: Práctica de bucles"></div>
+        <div class="field"><label>Lenguaje</label>
+          <select id="c-lenguaje"><option>JavaScript</option><option>Python</option><option>PHP</option><option>SQL</option></select>
+        </div>
+        <div class="field span-2"><label>Enunciado</label><textarea id="c-enunciado" rows="3"></textarea></div>
+        <div class="field span-2"><label>Código base</label><textarea id="c-codigo" rows="4"></textarea></div>
+        <div class="field span-2"><label>Salida esperada</label><textarea id="c-salida" rows="2"></textarea></div>
+      </div>
+      <button class="btn btn-primary" onclick="guardarConsola()">💾 Guardar consola de práctica</button>`;
+  } else if(tipo==='documentacion'){
+    wrap.innerHTML = `
+      <div class="field"><label>Título</label><input type="text" id="d-titulo" style="width:100%"></div>
+      <div class="field"><label>Contenido</label><textarea id="d-contenido" rows="6"></textarea></div>
+      <button class="btn btn-primary" onclick="guardarDocumentacion()">💾 Guardar documentación</button>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="form-grid">
+        <div class="field"><label>Título</label><input type="text" id="e-titulo"></div>
+        <div class="field"><label>Nivel</label><select id="e-nivel"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div>
+        <div class="field span-2"><label>Descripción del ejercicio</label><textarea id="e-descripcion" rows="4"></textarea></div>
+      </div>
+      <button class="btn btn-primary" onclick="guardarEjercicio()">💾 Guardar ejercicio</button>`;
+  }
+}
+function generarPreguntas(){
+  const n = Math.max(10, Math.min(30, parseInt(document.getElementById('q-cantidad').value||10)));
+  document.getElementById('q-cantidad').value = n;
+  let html='';
+  for(let i=1;i<=n;i++){
+    html += `<div class="question-block">
+      <label>Pregunta ${i}</label>
+      <input type="text" class="preg-enunciado" placeholder="Enunciado de la pregunta ${i}">
+      <div class="opt-row"><input type="radio" name="correcta-${i}" value="0" checked><input type="text" class="preg-op" placeholder="Opción A"></div>
+      <div class="opt-row"><input type="radio" name="correcta-${i}" value="1"><input type="text" class="preg-op" placeholder="Opción B"></div>
+      <div class="opt-row"><input type="radio" name="correcta-${i}" value="2"><input type="text" class="preg-op" placeholder="Opción C"></div>
+      <div class="opt-row"><input type="radio" name="correcta-${i}" value="3"><input type="text" class="preg-op" placeholder="Opción D"></div>
+    </div>`;
+  }
+  document.getElementById('q-preguntas').innerHTML = html;
+}
+function guardarCuestionario(){
+  const titulo = document.getElementById('q-titulo').value.trim();
+  const blocks = document.querySelectorAll('#q-preguntas .question-block');
+  if(!titulo || !blocks.length){ toast('Completa el título y genera las preguntas'); return; }
+  const preguntas = Array.from(blocks).map((b,i)=>{
+    const enunciado = b.querySelector('.preg-enunciado').value.trim() || `Pregunta ${i+1}`;
+    const opciones = Array.from(b.querySelectorAll('.preg-op')).map(o=>o.value.trim());
+    const correcta = parseInt(b.querySelector('input[type=radio]:checked').value);
+    return {enunciado, opciones, correcta};
+  });
+  const list = getContenidos();
+  list.push({id:'c'+Date.now(), tipo:'cuestionario', titulo, preguntas, fecha:new Date().toLocaleDateString('es-CO')});
+  saveContenidos(list);
+  toast('Cuestionario guardado ('+preguntas.length+' preguntas)');
+  renderFormContenido();
+  renderBibliotecaContenidos();
+}
+function guardarConsola(){
+  const titulo = document.getElementById('c-titulo').value.trim();
+  if(!titulo){ toast('Ingresa un título'); return; }
+  const list = getContenidos();
+  list.push({id:'c'+Date.now(), tipo:'consola', titulo,
+    lenguaje:document.getElementById('c-lenguaje').value,
+    enunciado:document.getElementById('c-enunciado').value,
+    codigoBase:document.getElementById('c-codigo').value,
+    salidaEsperada:document.getElementById('c-salida').value,
+    fecha:new Date().toLocaleDateString('es-CO')});
+  saveContenidos(list);
+  toast('Consola de práctica guardada'); renderFormContenido(); renderBibliotecaContenidos();
+}
+function guardarDocumentacion(){
+  const titulo = document.getElementById('d-titulo').value.trim();
+  if(!titulo){ toast('Ingresa un título'); return; }
+  const list = getContenidos();
+  list.push({id:'c'+Date.now(), tipo:'documentacion', titulo, contenido:document.getElementById('d-contenido').value, fecha:new Date().toLocaleDateString('es-CO')});
+  saveContenidos(list);
+  toast('Documentación guardada'); renderFormContenido(); renderBibliotecaContenidos();
+}
+function guardarEjercicio(){
+  const titulo = document.getElementById('e-titulo').value.trim();
+  if(!titulo){ toast('Ingresa un título'); return; }
+  const list = getContenidos();
+  list.push({id:'c'+Date.now(), tipo:'ejercicio', titulo, nivel:document.getElementById('e-nivel').value,
+    descripcion:document.getElementById('e-descripcion').value, fecha:new Date().toLocaleDateString('es-CO')});
+  saveContenidos(list);
+  toast('Ejercicio guardado'); renderFormContenido(); renderBibliotecaContenidos();
+}
+
+const TIPO_LABEL = {cuestionario:'Cuestionario', consola:'Consola de código', documentacion:'Documentación', ejercicio:'Ejercicio'};
+const TIPO_TAG = {cuestionario:'tag-cuestionario', consola:'tag-consola', documentacion:'tag-documentacion', ejercicio:'tag-ejercicio'};
+
+function renderBibliotecaContenidos(){
+  const list = getContenidos();
+  document.getElementById('bibliotecaContenidos').innerHTML = list.map(c=>`
+    <div class="content-card">
+      <span class="tipo-tag ${TIPO_TAG[c.tipo]}">${TIPO_LABEL[c.tipo]}</span>
+      <h4>${c.titulo}</h4>
+      <p>${c.fecha}${c.tipo==='cuestionario' ? ' · '+c.preguntas.length+' preguntas' : ''}${c.tipo==='consola' ? ' · '+c.lenguaje : ''}</p>
+      <button class="btn btn-secondary btn-sm" onclick="verContenidoDetalle('${c.id}')">Vista previa</button>
+      <button class="btn btn-secondary btn-sm" onclick="eliminarContenido('${c.id}')" style="color:var(--rojo);">Eliminar</button>
+    </div>`).join('') || '<p style="color:#888;">Aún no se han creado contenidos.</p>';
+}
+function eliminarContenido(id){
+  saveContenidos(getContenidos().filter(c=>c.id!==id));
+  renderBibliotecaContenidos(); refrescarSelectsAsignacion();
+}
+function verContenidoDetalle(id){
+  const c = getContenidos().find(x=>x.id===id);
+  if(!c) return;
+  let body='';
+  if(c.tipo==='cuestionario'){
+    body = c.preguntas.map((p,i)=>`<p><strong>${i+1}. ${p.enunciado}</strong><br>${p.opciones.map((o,j)=>(j===p.correcta?'✅ ':'▫️ ')+o).join('<br>')}</p>`).join('');
+  } else if(c.tipo==='consola'){
+    body = `<p><strong>Lenguaje:</strong> ${c.lenguaje}</p><p>${c.enunciado}</p><pre style="background:#f4f5f7;padding:10px;border-radius:6px;">${c.codigoBase}</pre><p><strong>Salida esperada:</strong> ${c.salidaEsperada}</p>`;
+  } else if(c.tipo==='documentacion'){
+    body = `<p style="white-space:pre-wrap;">${c.contenido}</p>`;
+  } else {
+    body = `<p><strong>Nivel:</strong> ${c.nivel}</p><p>${c.descripcion}</p>`;
+  }
+  openModal(`<h3>${c.titulo}</h3>${body}`);
+}
+
+/* ═══════════════ ADMIN: ASIGNAR CONTENIDO ═══════════════ */
+function refrescarSelectsAsignacion(){
+  fillSelect(document.getElementById('asigContenido'), getContenidos(), c=>TIPO_LABEL[c.tipo]+' — '+c.titulo, c=>c.id);
+  fillSelect(document.getElementById('asigPrograma'), PROGRAMAS, p=>p.nombre, p=>p.id);
+  renderAsigFichas();
+  renderAsignacionesTabla();
+}
+document.getElementById('asigPrograma')?.addEventListener?.('change', renderAsigFichas);
+function renderAsigFichas(){
+  const prog = programaById(document.getElementById('asigPrograma').value);
+  if(!prog) return;
+  fillSelect(document.getElementById('asigFicha'), prog.fichas, f=>'Ficha '+f.id, f=>f.id);
+}
+function asignarContenido(){
+  const contenidoId = document.getElementById('asigContenido').value;
+  const fichaId = document.getElementById('asigFicha').value;
+  const rol = document.getElementById('asigRol').value;
+  if(!contenidoId || !fichaId){ toast('Selecciona contenido y ficha'); return; }
+  const list = getAsignaciones();
+  list.push({id:'as'+Date.now(), contenidoId, fichaId, rol, fecha:new Date().toLocaleDateString('es-CO')});
+  saveAsignaciones(list);
+  toast('Contenido asignado');
+  renderAsignacionesTabla();
+}
+function renderAsignacionesTabla(){
+  const contenidos = getContenidos();
+  document.getElementById('asignacionesTbody').innerHTML = getAsignaciones().map(a=>{
+    const c = contenidos.find(x=>x.id===a.contenidoId);
+    const rolLabel = a.rol==='ambos' ? 'Instructor y Aprendiz' : (a.rol==='instructor'?'Instructor':'Aprendiz');
+    return `<tr><td>${c ? c.titulo : '(eliminado)'}</td><td>Ficha ${a.fichaId}</td><td>${rolLabel}</td><td>${a.fecha}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="quitarAsignacion('${a.id}')">Quitar</button></td></tr>`;
+  }).join('') || '<tr><td colspan="5" style="color:#888;">Sin asignaciones aún.</td></tr>';
+}
+function quitarAsignacion(id){
+  saveAsignaciones(getAsignaciones().filter(a=>a.id!==id));
+  renderAsignacionesTabla();
+}
+
+/* ═══════════════ ADMIN: REPORTES ═══════════════ */
+const repFicha = document.getElementById('repFicha'), repAprendiz = document.getElementById('repAprendiz');
+function initReportes(){
+  const allFichas = PROGRAMAS.flatMap(p=>p.fichas.map(f=>({id:f.id, label:'Ficha '+f.id})));
+  fillSelect(repFicha, allFichas, f=>f.label, f=>f.id);
+  repFicha.addEventListener('change', renderRepAprendices);
+  repAprendiz.addEventListener('change', renderReporte);
+  renderRepAprendices();
+}
+function renderRepAprendices(){
+  fillSelect(repAprendiz, aprendicesDeFicha(repFicha.value), a=>a.nombre, a=>a.id);
+  renderReporte();
+}
+function renderReporte(){
+  const prog = programaByFicha(repFicha.value);
+  const fichaId = repFicha.value, aprendizId = repAprendiz.value;
+  const avg = avgProgress(fichaId, aprendizId, prog.ra);
+  const nota = (avg/20).toFixed(1);
+  const aprendiz = aprendicesDeFicha(fichaId).find(a=>a.id===aprendizId);
+  document.getElementById('repContenido').innerHTML = `
+    <h4 style="margin-top:0;">${aprendiz ? aprendiz.nombre : ''} — Ficha ${fichaId}</h4>
+    <p>Programa: ${prog.nombre}</p>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin:12px 0;">
+      <div><div style="font-size:12px;color:#777;">Avance total RA</div><div style="font-size:22px;font-weight:700;">${avg}%</div></div>
+      <div><div style="font-size:12px;color:#777;">Nota equivalente (1-5)</div><div style="font-size:22px;font-weight:700;">${nota}</div></div>
+      <div><div style="font-size:12px;color:#777;">Estado</div><div style="margin-top:4px;">${estadoBadge(avg)}</div></div>
+    </div>
+    ${progressRowHTML(avg)}`;
+}
+
+/* ═══════════════ INSTRUCTOR ═══════════════ */
+/* El instructor solo dicta ADSO: no hay programa que elegir. */
+const PROGRAMA_INSTRUCTOR = 'adso';
+const insFicha = document.getElementById('insFicha'), insAprendiz = document.getElementById('insAprendiz');
+function initInstructor(){
+  insFicha.addEventListener('change', renderInsAprendices);
+  insAprendiz.addEventListener('change', renderInsRA);
+  renderInsFichas();
+
+  const allFichas = programaById(PROGRAMA_INSTRUCTOR).fichas.map(f=>({id:f.id}));
+  fillSelect(document.getElementById('insContFicha'), allFichas, f=>'Ficha '+f.id, f=>f.id);
+  document.getElementById('insContFicha').addEventListener('change', renderInsContenidos);
+  fillSelect(document.getElementById('insRepFicha'), allFichas, f=>'Ficha '+f.id, f=>f.id);
+  document.getElementById('insRepFicha').addEventListener('change', renderInsReportes);
+  renderInsContenidos(); renderInsReportes();
+}
+function renderInsFichas(){
+  const prog = programaById(PROGRAMA_INSTRUCTOR);
+  fillSelect(insFicha, prog.fichas, f=>'Ficha '+f.id, f=>f.id);
+  renderInsAprendices();
+}
+function renderInsAprendices(){
+  fillSelect(insAprendiz, aprendicesDeFicha(insFicha.value), a=>a.nombre, a=>a.id);
+  renderInsBarras();
+  renderInsRA();
+}
+
+/* Una barra por cada aprendiz de la ficha: la vista de grupo del instructor. */
+function renderInsBarras(){
+  const prog = programaById(PROGRAMA_INSTRUCTOR);
+  const fichaId = insFicha.value;
+  const aprendices = aprendicesDeFicha(fichaId);
+
+  const avgFicha = Math.round(
+    aprendices.reduce((s,a)=> s + avgProgress(fichaId, a.id, prog.ra), 0) / aprendices.length);
+
+  document.getElementById('insTotalAprendices').textContent = aprendices.length + ' aprendices';
+
+  document.getElementById('insFichaCard').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div><strong>Avance de la ficha ${fichaId}</strong>
+        <div style="font-size:12px;color:#777;">${prog.nombre} · ${aprendices.length} aprendices · ${prog.ra.length} resultados de aprendizaje</div>
+      </div>${estadoBadge(avgFicha)}
+    </div><div style="margin-top:10px;">${progressRowHTML(avgFicha)}</div>`;
+
+  document.getElementById('insBarras').innerHTML = aprendices.map((a,i)=>{
+    const pct = avgProgress(fichaId, a.id, prog.ra);
+    const activo = a.id === insAprendiz.value ? ' activo' : '';
+    return `<button type="button" class="barra-aprendiz${activo}" onclick="seleccionarAprendiz('${a.id}')">
+      <span class="barra-num">${i+1}</span>
+      <span class="barra-nombre">${a.nombre}</span>
+      <span class="barra-progreso">${progressRowHTML(pct)}</span>
+    </button>`;
+  }).join('');
+}
+
+function seleccionarAprendiz(aprendizId){
+  insAprendiz.value = aprendizId;
+  renderInsBarras();
+  renderInsRA();
+  document.getElementById('insAgregadoCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function renderInsRA(){
+  const prog = programaById(PROGRAMA_INSTRUCTOR);
+  const fichaId = insFicha.value, aprendizId = insAprendiz.value;
+  const avg = avgProgress(fichaId, aprendizId, prog.ra);
+  document.getElementById('insAgregadoCard').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div><strong>Avance total</strong><div style="font-size:12px;color:#777;">Ficha ${fichaId}</div></div>${estadoBadge(avg)}
+    </div><div style="margin-top:10px;">${progressRowHTML(avg)}</div>`;
+  document.getElementById('insRaList').innerHTML = prog.ra.map((texto,i)=>{
+    const aprobado = getProgress(fichaId, aprendizId, i);
+    return `<div class="ra-item"><div class="ra-num">${i+1}</div><div class="ra-texto">${texto}</div>
+      <label class="ra-check">
+        <input type="checkbox" ${aprobado?'checked':''}
+          onchange="setProgress('${fichaId}','${aprendizId}',${i}, this.checked); renderInsRA(); renderInsBarras();">
+        <span class="badge ${aprobado?'badge-aprobado':'badge-proceso'}">${aprobado?'Aprobado':'Pendiente'}</span>
+      </label></div>`;
+  }).join('');
+}
+function renderInsContenidos(){
+  const fichaId = document.getElementById('insContFicha').value;
+  const asignaciones = getAsignaciones().filter(a=> a.fichaId===fichaId && (a.rol==='instructor'||a.rol==='ambos'));
+  const contenidos = getContenidos();
+  document.getElementById('insContenidosGrid').innerHTML = asignaciones.map(a=>{
+    const c = contenidos.find(x=>x.id===a.contenidoId); if(!c) return '';
+    return `<div class="content-card"><span class="tipo-tag ${TIPO_TAG[c.tipo]}">${TIPO_LABEL[c.tipo]}</span>
+      <h4>${c.titulo}</h4><p>Asignado: ${a.fecha}</p>
+      <button class="btn btn-secondary btn-sm" onclick="verContenidoDetalle('${c.id}')">Ver contenido</button></div>`;
+  }).join('') || '<p style="color:#888;">No hay contenidos asignados a esta ficha para instructores.</p>';
+}
+function renderInsReportes(){
+  const fichaId = document.getElementById('insRepFicha').value;
+  const prog = programaByFicha(fichaId);
+  document.getElementById('insReportesTbody').innerHTML = aprendicesDeFicha(fichaId).map(a=>{
+    const avg = avgProgress(fichaId, a.id, prog.ra);
+    return `<tr><td>${a.nombre}</td><td>${progressRowHTML(avg)}</td><td>${(avg/20).toFixed(1)}</td><td>${estadoBadge(avg)}</td></tr>`;
+  }).join('');
+}
+
+/* ═══════════════ APRENDIZ ═══════════════ */
+const aprFicha = document.getElementById('aprFicha'), aprYo = document.getElementById('aprYo');
+function initAprendiz(){
+  const allFichas = PROGRAMAS.flatMap(p=>p.fichas.map(f=>({id:f.id})));
+  fillSelect(aprFicha, allFichas, f=>'Ficha '+f.id, f=>f.id);
+  aprFicha.addEventListener('change', ()=>{ renderAprYo(); renderAprContenidos(); });
+  aprYo.addEventListener('change', renderAprRA);
+  renderAprYo();
+  renderAprContenidos();
+}
+function renderAprYo(){
+  fillSelect(aprYo, aprendicesDeFicha(aprFicha.value), a=>a.nombre, a=>a.id);
+  renderAprRA();
+}
+function renderAprRA(){
+  const prog = programaByFicha(aprFicha.value);
+  const fichaId = aprFicha.value, aprendizId = aprYo.value;
+  const avg = avgProgress(fichaId, aprendizId, prog.ra);
+  document.getElementById('aprAgregadoCard').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div><strong>Avance total de mis resultados de aprendizaje</strong></div>${estadoBadge(avg)}
+    </div><div style="margin-top:10px;">${progressRowHTML(avg)}</div>`;
+  document.getElementById('aprRaList').innerHTML = prog.ra.map((texto,i)=>{
+    const aprobado = getProgress(fichaId, aprendizId, i);
+    return `<div class="ra-item"><div class="ra-num">${i+1}</div><div class="ra-texto">${texto}</div>
+      <label class="ra-check">
+        <input type="checkbox" disabled ${aprobado?'checked':''}>
+        <span class="badge ${aprobado?'badge-aprobado':'badge-proceso'}">${aprobado?'Aprobado':'Pendiente'}</span>
+      </label></div>`;
+  }).join('');
+}
+function renderAprContenidos(){
+  const fichaId = aprFicha.value;
+  const asignaciones = getAsignaciones().filter(a=> a.fichaId===fichaId && (a.rol==='aprendiz'||a.rol==='ambos'));
+  const contenidos = getContenidos();
+  document.getElementById('aprContenidosGrid').innerHTML = asignaciones.map(a=>{
+    const c = contenidos.find(x=>x.id===a.contenidoId); if(!c) return '';
+    let accion = `<button class="btn btn-secondary btn-sm" onclick="verContenidoDetalle('${c.id}')">Ver</button>`;
+    if(c.tipo==='cuestionario') accion = `<button class="btn btn-primary btn-sm" onclick="tomarCuestionario('${c.id}')">Realizar cuestionario</button>`;
+    if(c.tipo==='consola') accion = `<button class="btn btn-primary btn-sm" onclick="abrirConsola('${c.id}')">Abrir consola</button>`;
+    return `<div class="content-card"><span class="tipo-tag ${TIPO_TAG[c.tipo]}">${TIPO_LABEL[c.tipo]}</span>
+      <h4>${c.titulo}</h4><p>Asignado: ${a.fecha}</p>${accion}</div>`;
+  }).join('') || '<p style="color:#888;">Aún no tienes contenidos asignados en esta ficha.</p>';
+}
+function tomarCuestionario(id){
+  const c = getContenidos().find(x=>x.id===id); if(!c) return;
+  const body = c.preguntas.map((p,i)=>`
+    <div class="question-block">
+      <p><strong>${i+1}. ${p.enunciado}</strong></p>
+      ${p.opciones.map((o,j)=>`<label style="font-weight:400;display:block;"><input type="radio" name="take-${i}" value="${j}"> ${o||'Opción '+String.fromCharCode(65+j)}</label>`).join('')}
+    </div>`).join('');
+  openModal(`<h3>${c.titulo}</h3>${body}<button class="btn btn-primary" onclick="calificarCuestionario('${id}')">✅ Enviar respuestas</button>`);
+}
+function calificarCuestionario(id){
+  const c = getContenidos().find(x=>x.id===id);
+  let correctas=0;
+  c.preguntas.forEach((p,i)=>{
+    const sel = document.querySelector(`input[name="take-${i}"]:checked`);
+    if(sel && parseInt(sel.value)===p.correcta) correctas++;
+  });
+  const pct = Math.round((correctas/c.preguntas.length)*100);
+  const aprobado = pct >= 60;
+  const raIndex = c.ra !== undefined ? c.ra : 0;
+  setProgress(aprFicha.value, aprYo.value, raIndex, aprobado);
+  closeModal();
+  toast(`Resultado: ${correctas}/${c.preguntas.length} (${pct}%) — RA marcado como ${aprobado?'Aprobado':'Pendiente'}`);
+  renderAprRA();
+}
+function abrirConsola(id){
+  const c = getContenidos().find(x=>x.id===id); if(!c) return;
+  openModal(`<h3>${c.titulo}</h3><p><strong>Lenguaje:</strong> ${c.lenguaje}</p><p>${c.enunciado}</p>
+    <label>Tu código</label><textarea id="consolaCodigo" rows="8" style="width:100%;font-family:monospace;">${c.codigoBase}</textarea>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="ejecutarConsola('${c.salidaEsperada.replace(/'/g,"\\'")}')">▶️ Ejecutar</button>
+    <pre id="consolaSalida" style="background:#1e1e2e;color:#a6e22e;padding:10px;border-radius:6px;margin-top:10px;min-height:30px;"></pre>`);
+}
+function ejecutarConsola(salidaEsperada){
+  document.getElementById('consolaSalida').textContent = '> Ejecutando...\n' + (salidaEsperada || 'Sin salida definida');
+}
+
+/* ═══════════════ INIT ═══════════════ */
+abrirRolDeLaURL();
+initAdminDashboard();
+initAdminFichasView();
+initAsignarFicha();
+renderProgramasTable();
+renderFormContenido();
+renderBibliotecaContenidos();
+refrescarSelectsAsignacion();
+initReportes();
+initInstructor();
+initAprendiz();
+fijarAprendizDeLaURL();
+</script>
+<footer class="footer">
+  <div class="pie-franjas">
+    <img src="../assets/img/SENA/lineas%20atencion.JPG" alt="Líneas de atención al ciudadano" loading="lazy">
+    <img src="../assets/img/SENA/redes.JPG" alt="Redes sociales @SENAcomunica" loading="lazy">
+  </div>
+  <p class="pie-legal">
+    <img class="pie-marca" src="../assets/img/SENA/senasoft.JPG" alt="SENA/Soft">
+    SGMA-ADSO · SENA CEGAFE — Regional Boyacá · Tunja 2026
+  </p>
+</footer>
+</body>
+</html>

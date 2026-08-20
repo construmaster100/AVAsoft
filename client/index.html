@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de interacción · Cancha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul: #2f6a8f;
+    --azul-osc: #234f6b;
+    --rojo: #e23c2f;
+    --tinta: #17222b;
+    --papel: #eef2ee;
+    --tarjeta: #ffffff;
+    --sombra: 0 18px 40px -14px rgba(23,34,43,.35);
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; height:100%;
+    background: var(--papel);
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(47,106,143,.10), transparent 45%),
+      radial-gradient(circle at 88% 92%, rgba(226,60,47,.08), transparent 45%);
+    color: var(--tinta);
+    font-family:"Inter", system-ui, sans-serif;
+  }
+  .hero{
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 24px;
+    gap:20px;
+  }
+  .eyebrow{
+    font-size:.72rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color: var(--azul-osc);
+    font-weight:600;
+  }
+  h1{
+    margin:0;
+    font-family:"Space Grotesk", sans-serif;
+    font-weight:700;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    letter-spacing:-.01em;
+    max-width:16ch;
+  }
+  p.lead{
+    max-width:46ch;
+    color:#4a5a53;
+    line-height:1.6;
+    margin:0;
+  }
+  .card{
+    background: var(--tarjeta);
+    border-radius:18px;
+    box-shadow: var(--sombra);
+    border:1px solid rgba(23,34,43,.08);
+    padding: 28px 32px;
+    max-width:380px;
+    width:100%;
+  }
+  .cta{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding: 13px 20px;
+    border-radius:12px;
+    border:none;
+    background: var(--rojo);
+    color:#fff;
+    font-weight:700;
+    font-size:1rem;
+    text-decoration:none;
+    cursor:pointer;
+    transition: background .15s ease, transform .1s ease;
+  }
+  .cta:hover{ background:#c62e22; }
+  .cta:active{ transform: scale(.98); }
+  .status-note{
+    margin-top:14px;
+    font-size:.76rem;
+    color:#6b7a72;
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <span class="eyebrow">Sistema de interacción · cancha de fútbol</span>
+    <h1>Personaje, balón y una cancha para explorar</h1>
+    <p class="lead">Dos jugadores, cada uno desde su propio dispositivo: movete con WASD o las flechas y empujá el balón hacia la meta contraria.</p>
+
+    <div class="card">
+      <a class="cta" href="login/login.html">Entrar</a>
+      <p class="status-note">El servidor (Node + Socket.IO) simula la partida y la sincroniza en tiempo real entre los dos navegadores conectados.</p>
+    </div>
+  </div>
+
+</body>
+</html>

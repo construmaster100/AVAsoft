@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión · Cancha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+  <div class="wrap">
+    <form class="login-card" id="login-form" novalidate>
+      <span class="eyebrow">Sistema de interacción · 1v1 en línea</span>
+      <h1>Iniciar sesión</h1>
+      <p class="subtitle">Cada jugador entra desde su propio dispositivo con su cuenta.</p>
+
+      <label class="field">
+        <span>Usuario</span>
+        <input type="text" id="player-user" name="playerUser" placeholder="jugador 1" autocomplete="username" required>
+      </label>
+      <label class="field">
+        <span>Contraseña</span>
+        <input type="password" id="player-pass" name="playerPass" placeholder="contraseña 1" autocomplete="current-password" required>
+      </label>
+
+      <p class="error" id="form-error" role="alert" hidden></p>
+
+      <button type="submit" class="cta">Entrar</button>
+
+      <p class="demo-note">
+        Modo demo: solo existen dos cuentas fijas mientras no hay <code>auth.routes.js</code> —
+        <strong>jugador 1 / contraseña 1</strong> y <strong>jugador 2 / contraseña 2</strong>.
+        La cuenta que uses decide qué personaje controlás en la cancha.
+      </p>
+    </form>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

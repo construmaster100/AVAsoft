@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de interacción · Cancha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div class="topbar-title">
+        <a class="lobby-link" href="../login/login.html">&larr; Salir</a>
+        <span class="topbar-eyebrow">Sistema de interacción · 1v1 en línea</span>
+        <h1>Cancha de fútbol — 1v1</h1>
+      </div>
+      <div class="scoreboard">
+        <span class="score-name" id="player-one-name">Jugador 1</span>
+        <span class="score-value" id="score-one">0</span>
+        <span class="score-sep">—</span>
+        <span class="score-value" id="score-two">0</span>
+        <span class="score-name" id="player-two-name">Jugador 2</span>
+      </div>
+    </header>
+
+    <main class="stage">
+
+      <div class="field-frame" id="field-frame">
+        <div class="field-margin" aria-hidden="true"></div>
+
+        <svg id="pitch-svg" viewBox="0 0 1000 562.5" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="Cancha de fútbol completa con dos personajes, un balón y una meta en cada extremo">
+          <!-- El campo, la grilla, las metas y las entidades se montan por JavaScript (game.js). -->
+        </svg>
+
+        <div class="field-caption">
+          MOVETE CON WASD O LAS FLECHAS
+        </div>
+
+        <div class="connection-banner" id="connection-banner" aria-live="polite"></div>
+        <div class="goal-banner" id="goal-banner" aria-live="polite"></div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="minimap-panel">
+          <div class="minimap-heading">
+            <span>Minimapa</span>
+          </div>
+          <div class="minimap" id="minimap" aria-label="Minimapa de la cancha completa">
+            <img src="../assets/img/CANCHA%20FUTBOL/CANCHA%20VACIA.png" alt="Vista completa de la cancha">
+            <span class="minimap-grid" aria-hidden="true"></span>
+            <span class="minimap-dot minimap-ball-dot" id="minimap-ball-dot" aria-hidden="true"></span>
+            <span class="minimap-dot minimap-p1-dot" id="minimap-p1-dot" aria-hidden="true"></span>
+            <span class="minimap-dot minimap-p2-dot" id="minimap-p2-dot" aria-hidden="true"></span>
+          </div>
+        </div>
+      </aside>
+
+    </main>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
