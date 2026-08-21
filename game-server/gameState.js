@@ -8,6 +8,7 @@ const COLS = 10;
 const TOTAL_CELDAS = ROWS * COLS;
 const MAX_JUGADORES = 20;
 const PUNTOS_POR_CELDA = 3;
+const TOP_N = 15;
 const MS_ANTES_DE_LIBERAR_COLOR = 8000;
 
 const PALETA = [
@@ -137,7 +138,7 @@ class GameState {
     return [...this.jugadores.values()]
       .slice()
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
+      .slice(0, TOP_N)
       .map((j) => ({ id: j.id, nombre: j.nombre, color: j.color, score: j.score }));
   }
 
@@ -219,16 +220,12 @@ class GameState {
     const celda = this.tablero[celdaId - 1];
     celda.marca = marca;
     celda.jugadorId = jugadorId;
-    let puntajeCambio = false;
-    if (!celda.puntosOtorgados) {
-      celda.puntosOtorgados = true;
-      jugador.score += PUNTOS_POR_CELDA;
-      puntajeCambio = true;
-    }
+    celda.puntosOtorgados = true;
+    jugador.score += PUNTOS_POR_CELDA;
     jugador.ultimaAccion = Date.now();
     this._guardarTablero();
-    if (puntajeCambio) this._guardarJugador(jugador);
-    return { ok: true, celda, jugador, puntajeCambio };
+    this._guardarJugador(jugador);
+    return { ok: true, celda, jugador, puntajeCambio: true };
   }
 
   cambiarColorCelda(jugadorId, celdaId) {
