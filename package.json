@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node game-server/index.js",
     "start:adso": "node server/server.js",
+    "dev:game": "node game-server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
