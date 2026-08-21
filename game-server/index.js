@@ -15,7 +15,7 @@ const estado = new GameState();
 
 app.use("/assets", express.static(path.join(ROOT, "assets")));
 app.use("/pages", express.static(path.join(ROOT, "pages")));
-app.get("/", (req, res) => res.sendFile(path.join(ROOT, "index.html")));
+app.get(["/", "/index.html"], (req, res) => res.sendFile(path.join(ROOT, "index.html")));
 
 io.on("connection", (socket) => {
   socket.on("observar", (_payload, cb) => {
