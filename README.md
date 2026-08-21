@@ -18,6 +18,19 @@ navegación WASD y marcas X/O) según
 que es la fuente de requisitos vigente para `index.html` / `pages/` /
 `game-server/`.
 
+## Despliegue
+
+| | |
+| --- | --- |
+| Carpeta local | `D:\cancha interactiva asincronica` |
+| GitHub | [construmaster100/AVAsoft](https://github.com/construmaster100/AVAsoft), branch `cancha-svg-viewport` |
+| Render (en vivo) | https://adsoavasoft.onrender.com |
+
+Este repositorio es independiente de `construmaster100/MAP` (carpeta local
+`D:\FT3P`, servicio Render `englishcoding`) — son dos proyectos separados que
+por coincidencia recibieron una implementación similar de SENAEnglish; no
+comparten historial ni despliegue.
+
 ## Cómo correrlo
 
 ```
