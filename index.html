@@ -3,109 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de interacción · Cancha</title>
+<title>CIA — Cancha Interactiva Asincrónica «CR7»</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --azul: #2f6a8f;
-    --azul-osc: #234f6b;
-    --rojo: #e23c2f;
-    --tinta: #17222b;
-    --papel: #eef2ee;
-    --tarjeta: #ffffff;
-    --sombra: 0 18px 40px -14px rgba(23,34,43,.35);
-  }
-  *{ box-sizing:border-box; }
-  html,body{
-    margin:0; height:100%;
-    background: var(--papel);
-    background-image:
-      radial-gradient(circle at 12% 8%, rgba(47,106,143,.10), transparent 45%),
-      radial-gradient(circle at 88% 92%, rgba(226,60,47,.08), transparent 45%);
-    color: var(--tinta);
-    font-family:"Inter", system-ui, sans-serif;
-  }
-  .hero{
-    min-height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding: 24px;
-    gap:20px;
-  }
-  .eyebrow{
-    font-size:.72rem;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color: var(--azul-osc);
-    font-weight:600;
-  }
-  h1{
-    margin:0;
-    font-family:"Space Grotesk", sans-serif;
-    font-weight:700;
-    font-size: clamp(1.8rem, 5vw, 3rem);
-    letter-spacing:-.01em;
-    max-width:16ch;
-  }
-  p.lead{
-    max-width:46ch;
-    color:#4a5a53;
-    line-height:1.6;
-    margin:0;
-  }
-  .card{
-    background: var(--tarjeta);
-    border-radius:18px;
-    box-shadow: var(--sombra);
-    border:1px solid rgba(23,34,43,.08);
-    padding: 28px 32px;
-    max-width:380px;
-    width:100%;
-  }
-  .cta{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    width:100%;
-    padding: 13px 20px;
-    border-radius:12px;
-    border:none;
-    background: var(--rojo);
-    color:#fff;
-    font-weight:700;
-    font-size:1rem;
-    text-decoration:none;
-    cursor:pointer;
-    transition: background .15s ease, transform .1s ease;
-  }
-  .cta:hover{ background:#c62e22; }
-  .cta:active{ transform: scale(.98); }
-  .status-note{
-    margin-top:14px;
-    font-size:.76rem;
-    color:#6b7a72;
-    line-height:1.5;
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="login-body">
 
-  <div class="hero">
-    <span class="eyebrow">Sistema de interacción · cancha de fútbol</span>
-    <h1>Personaje, balón y una cancha para explorar</h1>
-    <p class="lead">Dos jugadores, cada uno desde su propio dispositivo: movete con WASD o las flechas y empujá el balón hacia la meta contraria.</p>
+  <main class="login-wrap">
+    <section class="login-card">
+      <span class="topbar-eyebrow">CIA · Cancha Interactiva Asincrónica</span>
+      <h1 class="login-title">Entrá a la cancha «CR7»</h1>
+      <p class="login-sub">Elegí tu nombre y tu color. Todos los jugadores conectados comparten la misma cancha de 70 casillas en tiempo real.</p>
 
-    <div class="card">
-      <a class="cta" href="client/login/login.html">Entrar</a>
-      <p class="status-note">El servidor (Node + Socket.IO) simula la partida y la sincroniza en tiempo real entre los dos navegadores conectados.</p>
-    </div>
-  </div>
+      <form id="login-form" class="login-form">
+        <label class="login-label" for="nombre-input">Nombre de usuario</label>
+        <input id="nombre-input" class="login-input" type="text" maxlength="20" placeholder="Ej: CARLOS" autocomplete="off" required>
 
+        <span class="login-label">Color</span>
+        <div id="color-grid" class="color-grid" role="radiogroup" aria-label="Selección de color"></div>
+
+        <p id="login-error" class="login-error" hidden></p>
+
+        <button type="submit" class="login-submit" id="login-submit">Entrar a la cancha</button>
+      </form>
+    </section>
+
+    <aside class="login-card login-lobby">
+      <div class="minimap-heading">
+        <span>Sala de espera</span>
+        <span id="lobby-count">0 conectados</span>
+      </div>
+      <ul id="lobby-list" class="lobby-list"></ul>
+    </aside>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="assets/js/game-client.js"></script>
+  <script>
+    const colorGrid = document.getElementById("color-grid");
+    const form = document.getElementById("login-form");
+    const nombreInput = document.getElementById("nombre-input");
+    const errorEl = document.getElementById("login-error");
+    const submitBtn = document.getElementById("login-submit");
+    const lobbyList = document.getElementById("lobby-list");
+    const lobbyCount = document.getElementById("lobby-count");
+
+    let paleta = [];
+    let colorElegido = null;
+
+    function coloresTomados(jugadores) {
+      return new Set(jugadores.filter((j) => j.conectado).map((j) => j.color));
+    }
+
+    function pintarPaleta(jugadores) {
+      const tomados = coloresTomados(jugadores);
+      colorGrid.innerHTML = "";
+      paleta.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "color-swatch";
+        btn.style.background = c.hex;
+        btn.title = c.nombre;
+        btn.setAttribute("role", "radio");
+        btn.setAttribute("aria-label", c.nombre);
+        const ocupado = tomados.has(c.id);
+        btn.disabled = ocupado;
+        btn.classList.toggle("is-taken", ocupado);
+        btn.classList.toggle("is-selected", colorElegido === c.id);
+        btn.addEventListener("click", () => {
+          colorElegido = c.id;
+          [...colorGrid.children].forEach((el) => el.classList.remove("is-selected"));
+          btn.classList.add("is-selected");
+        });
+        colorGrid.appendChild(btn);
+      });
+    }
+
+    function pintarLobby(jugadores) {
+      const conectados = jugadores.filter((j) => j.conectado);
+      lobbyCount.textContent = `${conectados.length} conectado${conectados.length === 1 ? "" : "s"}`;
+      lobbyList.innerHTML = "";
+      if (!conectados.length) {
+        const li = document.createElement("li");
+        li.className = "lobby-empty";
+        li.textContent = "Todavía no hay nadie en la cancha. ¡Sé el primero!";
+        lobbyList.appendChild(li);
+        return;
+      }
+      conectados.forEach((j) => {
+        const info = paleta.find((c) => c.id === j.color);
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="color-dot" style="background:${info ? info.hex : "#999"}"></span> ${j.nombre}`;
+        lobbyList.appendChild(li);
+      });
+    }
+
+    function aplicarEstado(estado) {
+      paleta = estado.config.paleta;
+      pintarPaleta(estado.jugadores);
+      pintarLobby(estado.jugadores);
+    }
+
+    CIA.observar().then(aplicarEstado);
+    CIA.socket.on("jugador_nuevo", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("jugador_reconectado", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("jugador_desconectado", () => CIA.observar().then(aplicarEstado));
+
+    const sesionPrevia = CIA.obtenerSesion();
+    if (sesionPrevia) {
+      CIA.reclamarSesion().then((res) => {
+        if (res.ok) window.location.href = "pages/cancha.html";
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      errorEl.hidden = true;
+      const nombre = nombreInput.value.trim();
+      if (!nombre) {
+        errorEl.textContent = "Ingresá un nombre de usuario.";
+        errorEl.hidden = false;
+        return;
+      }
+      if (!colorElegido) {
+        errorEl.textContent = "Elegí un color disponible.";
+        errorEl.hidden = false;
+        return;
+      }
+      submitBtn.disabled = true;
+      const respuesta = await CIA.unirse(nombre, colorElegido);
+      submitBtn.disabled = false;
+      if (!respuesta.ok) {
+        errorEl.textContent = respuesta.motivo || "No se pudo entrar a la cancha.";
+        errorEl.hidden = false;
+        return;
+      }
+      window.location.href = "pages/cancha.html";
+    });
+  </script>
 </body>
 </html>

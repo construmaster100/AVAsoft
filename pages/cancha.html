@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cancha «CR7» · CIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div class="topbar-title">
+        <span class="topbar-eyebrow">CIA · Cancha Interactiva Asincrónica</span>
+        <h1>Cancha de fútbol — mapa navegable</h1>
+      </div>
+      <div class="topbar-status" id="status-panel">
+        <div class="status-zone">
+          <span class="status-label">Zona activa</span>
+          <span class="status-value" id="zone-number">—</span>
+        </div>
+        <div class="status-coords">
+          <span id="zone-coords">Fila — · Columna —</span>
+          <span id="zone-desc">—</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="stage">
+
+      <div class="field-frame" id="field-frame">
+        <div class="field-margin" aria-hidden="true"></div>
+
+        <svg id="pitch-svg" viewBox="0 0 1000 562.5" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="Viewport de navegación sobre la cancha de fútbol, grilla de 7 filas por 10 columnas">
+          <!-- La textura real, la grilla y las celdas se montan por JavaScript. -->
+        </svg>
+
+        <button type="button" class="pan-btn pan-up" id="pan-up" aria-label="Desplazar el viewport hacia arriba">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,5 19,19 5,19"></polygon></svg>
+        </button>
+        <button type="button" class="pan-btn pan-down" id="pan-down" aria-label="Desplazar el viewport hacia abajo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,5 19,19 5,19"></polygon></svg>
+        </button>
+        <button type="button" class="pan-btn pan-left" id="pan-left" aria-label="Desplazar el viewport hacia la izquierda">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,5 19,19 5,19"></polygon></svg>
+        </button>
+        <button type="button" class="pan-btn pan-right" id="pan-right" aria-label="Desplazar el viewport hacia la derecha">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,5 19,19 5,19"></polygon></svg>
+        </button>
+
+        <div class="field-caption">
+          WASD / FLECHAS mover · X / O marcar · ESPACIO pintar celda
+        </div>
+
+        <div class="action-bar">
+          <button type="button" class="action-btn action-x" id="btn-mark-x">Marcar X</button>
+          <button type="button" class="action-btn action-o" id="btn-mark-o">Marcar O</button>
+          <button type="button" class="action-btn action-color" id="btn-color">Pintar celda (ESPACIO)</button>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+
+        <div class="player-panel">
+          <span class="color-dot" id="player-color-dot"></span>
+          <div class="player-panel-info">
+            <span id="player-name">—</span>
+            <span class="player-score">Score: <strong id="player-score">0</strong></span>
+          </div>
+          <button type="button" class="logout-btn" id="btn-salir" title="Salir de la cancha">Salir</button>
+        </div>
+
+        <div class="minimap-panel">
+          <div class="minimap-heading">
+            <span>Minimapa</span>
+            <span id="minimap-zone">ZONA — / 70</span>
+          </div>
+          <button type="button" class="minimap" id="minimap" aria-label="Minimapa de la cancha completa, toca cualquier punto para saltar ahí">
+            <img src="../assets/img/CANCHA%20FUTBOL/CANCHA%20VACIA.png" alt="Vista completa de la cancha">
+            <span class="minimap-grid" aria-hidden="true"></span>
+            <div class="minimap-players" id="minimap-players"></div>
+            <span class="minimap-location" id="minimap-location" aria-hidden="true"></span>
+          </button>
+          <p class="minimap-coords" id="minimap-coords">Fila — · Columna —</p>
+        </div>
+
+        <div class="sidebar-panel">
+          <div class="minimap-heading"><span>Jugadores conectados</span><span id="players-count">0</span></div>
+          <ul class="players-list" id="players-list"></ul>
+        </div>
+
+        <div class="sidebar-panel">
+          <div class="minimap-heading"><span>TOP 5 SCORES</span></div>
+          <ol class="top5-list" id="top5-list"></ol>
+        </div>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../assets/js/game-client.js"></script>
+  <script src="../assets/js/script.js"></script>
+</body>
+</html>
