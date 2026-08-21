@@ -14,8 +14,8 @@
   <main class="login-wrap">
     <section class="login-card">
       <span class="topbar-eyebrow">CIA · Cancha Interactiva Asincrónica</span>
-      <h1 class="login-title">Entrá a la cancha «CR7»</h1>
-      <p class="login-sub">Elegí tu nombre y tu color. Todos los jugadores conectados comparten la misma cancha de 70 casillas en tiempo real.</p>
+      <h1 class="login-title">Entra a la cancha «CR7»</h1>
+      <p class="login-sub">Elige tu nombre y tu color. Todos los jugadores conectados comparten la misma cancha de 70 casillas en tiempo real.</p>
 
       <form id="login-form" class="login-form">
         <label class="login-label" for="nombre-input">Nombre de usuario</label>
@@ -123,12 +123,12 @@
       errorEl.hidden = true;
       const nombre = nombreInput.value.trim();
       if (!nombre) {
-        errorEl.textContent = "Ingresá un nombre de usuario.";
+        errorEl.textContent = "Ingresa un nombre de usuario.";
         errorEl.hidden = false;
         return;
       }
       if (!colorElegido) {
-        errorEl.textContent = "Elegí un color disponible.";
+        errorEl.textContent = "Elige un color disponible.";
         errorEl.hidden = false;
         return;
       }

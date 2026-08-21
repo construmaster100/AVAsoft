@@ -306,7 +306,7 @@ function renderPlayersList() {
     const li = document.createElement("li");
     li.className = j.id === miJugadorId ? "is-self" : "";
     li.innerHTML = `<span class="color-dot" style="background:${paletaPorId[j.color] || "#999"}"></span>
-      <span class="players-list-name">${j.nombre}${j.id === miJugadorId ? " (vos)" : ""}</span>
+      <span class="players-list-name">${j.nombre}${j.id === miJugadorId ? " (tú)" : ""}</span>
       <span class="players-list-score">${j.score}</span>`;
     playersListEl.appendChild(li);
   });
