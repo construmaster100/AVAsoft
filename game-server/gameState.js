@@ -8,7 +8,7 @@ const COLS = 10;
 const TOTAL_CELDAS = ROWS * COLS;
 const MAX_JUGADORES = 20;
 const PUNTOS_POR_CELDA = 3;
-const PUNTOS_POR_DECOLORAR = 2;
+const PENALIZACION_PUNTOS = 2;
 const TOP_N = 15;
 const MS_ANTES_DE_LIBERAR_COLOR = 8000;
 
@@ -220,6 +220,14 @@ class GameState {
     if (marca !== "X" && marca !== "O") return { ok: false };
 
     const celda = this.tablero[celdaId - 1];
+    const marcadorAnterior = celda.marcadorId ? this.jugadores.get(celda.marcadorId) : null;
+
+    let jugadorPenalizado = null;
+    if (marcadorAnterior) {
+      marcadorAnterior.score = Math.max(0, marcadorAnterior.score - PENALIZACION_PUNTOS);
+      jugadorPenalizado = marcadorAnterior;
+    }
+
     celda.marca = marca;
     celda.jugadorId = jugadorId;
     celda.marcadorId = jugadorId;
@@ -228,7 +236,8 @@ class GameState {
     jugador.ultimaAccion = Date.now();
     this._guardarTablero();
     this._guardarJugador(jugador);
-    return { ok: true, celda, jugador, puntajeCambio: true };
+    if (jugadorPenalizado && jugadorPenalizado.id !== jugador.id) this._guardarJugador(jugadorPenalizado);
+    return { ok: true, celda, jugador, jugadorPenalizado, puntajeCambio: true };
   }
 
   cambiarColorCelda(jugadorId, celdaId) {
@@ -247,7 +256,7 @@ class GameState {
     if (seDecolora && celda.marcadorId) {
       const marcador = this.jugadores.get(celda.marcadorId);
       if (marcador) {
-        marcador.score = Math.max(0, marcador.score - PUNTOS_POR_DECOLORAR);
+        marcador.score = Math.max(0, marcador.score - PENALIZACION_PUNTOS);
         this._guardarJugador(marcador);
         jugadorPenalizado = marcador;
       }

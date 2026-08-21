@@ -66,6 +66,10 @@ io.on("connection", (socket) => {
       io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.jugador));
       io.to("sala-1").emit("top5_actualizado", estado.top5());
     }
+    if (resultado.jugadorPenalizado && resultado.jugadorPenalizado.id !== resultado.jugador.id) {
+      io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.jugadorPenalizado));
+      io.to("sala-1").emit("top5_actualizado", estado.top5());
+    }
   });
 
   socket.on("cambiar_color_celda", ({ celdaId } = {}) => {
