@@ -1,6 +1,7 @@
 /* ==========================================================================
-   CIA — capa de conexión Socket.IO compartida por index.html (login) y las
-   páginas de pages/ (cancha, score, administrador). Expone window.CIA.
+   SENAEnglish — capa de conexión Socket.IO compartida por index.html (login)
+   y las páginas de pages/ (quiz, resultado, administrador). Expone
+   window.SENAEnglish.
    ========================================================================== */
 
 if (window.location.protocol === "file:" || typeof io === "undefined") {
@@ -10,16 +11,16 @@ if (window.location.protocol === "file:" || typeof io === "undefined") {
       <h1 style="font-size:1.3rem;margin:0 0 10px;color:#e23c2f;">Esto necesita el servidor corriendo</h1>
       <p style="margin:0 0 8px;">Este archivo se abrió sin pasar por el servidor Node.js (por ejemplo,
       directamente como archivo local, o desde GitHub/GitHub Pages, que solo sirve archivos estáticos).
-      El juego necesita ese servidor activo para sincronizar jugadores en tiempo real por Socket.IO.</p>
+      SENAEnglish necesita ese servidor activo para sincronizar participantes en tiempo real por Socket.IO.</p>
       <p style="margin:0;">Ejecuta <code>npm run dev:game</code> en tu computador y abre
       <code>http://localhost:4000/</code> en el navegador. Para que otras personas se conecten,
       hace falta desplegarlo en un servicio que ejecute Node.js (por ejemplo Render.com), no solo subirlo a GitHub.</p>
     </div>`;
-  throw new Error("CIA: abre http://localhost:4000/ (servidor corriendo), no el archivo estático.");
+  throw new Error("SENAEnglish: abre http://localhost:4000/ (servidor corriendo), no el archivo estático.");
 }
 
-const CIA = (() => {
-  const SESION_KEY = "cia_sesion";
+const SENAEnglish = (() => {
+  const SESION_KEY = "senaenglish_sesion";
   const socket = io();
 
   function obtenerSesion() {
@@ -60,19 +61,15 @@ const CIA = (() => {
     return unirse(sesion.nombre, sesion.color);
   }
 
-  function mover(dr, dc) {
-    socket.emit("mover", { dr, dc });
+  function responder(preguntaId, opcionId) {
+    return new Promise((resolve) => socket.emit("responder", { preguntaId, opcionId }, resolve));
   }
 
-  function marcar(celdaId, marca) {
-    socket.emit("marcar", { celdaId, marca });
+  function finalizar() {
+    return new Promise((resolve) => socket.emit("finalizar", {}, resolve));
   }
 
-  function cambiarColorCelda(celdaId) {
-    socket.emit("cambiar_color_celda", { celdaId });
-  }
-
-  function reiniciarPartida() {
+  function reiniciarEvaluacion() {
     socket.emit("admin_reiniciar");
   }
 
@@ -97,9 +94,8 @@ const CIA = (() => {
     observar,
     unirse,
     reclamarSesion,
-    mover,
-    marcar,
-    cambiarColorCelda,
-    reiniciarPartida,
+    responder,
+    finalizar,
+    reiniciarEvaluacion,
   };
 })();
