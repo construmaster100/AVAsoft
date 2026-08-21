@@ -1,4 +1,7 @@
 const crypto = require("crypto");
+const { conectarMongo } = require("./db");
+const Jugador = require("./models/Jugador");
+const Tablero = require("./models/Tablero");
 
 const ROWS = 7;
 const COLS = 10;
@@ -42,6 +45,66 @@ class GameState {
     this.jugadores = new Map(); // jugadorId -> jugador
     this.tablero = crearTablero();
     this.timersDesconexion = new Map(); // jugadorId -> Timeout
+    this.persistenciaActiva = false;
+  }
+
+  // Restaura jugadores y tablero guardados en MongoDB (si hay MONGODB_URI y
+  // Atlas responde) para que el puntaje y las marcas sobrevivan a un
+  // reinicio del proceso (por ejemplo el spin-down de Render por
+  // inactividad). Si no hay persistencia disponible, el servidor sigue
+  // funcionando solo en memoria.
+  async cargarDesdeMongo() {
+    this.persistenciaActiva = await conectarMongo();
+    if (!this.persistenciaActiva) return;
+
+    const docsJugadores = await Jugador.find({}).lean();
+    for (const doc of docsJugadores) {
+      this.jugadores.set(doc.id, {
+        id: doc.id,
+        nombre: doc.nombre,
+        color: doc.color,
+        fila: doc.fila,
+        columna: doc.columna,
+        score: doc.score,
+        conectado: false,
+        socketId: null,
+        ultimaAccion: Date.now(),
+      });
+    }
+
+    const docTablero = await Tablero.findById("tablero").lean();
+    if (docTablero && docTablero.celdas && docTablero.celdas.length === TOTAL_CELDAS) {
+      this.tablero = docTablero.celdas;
+    }
+
+    console.log(`CIA: ${docsJugadores.length} jugador(es) y tablero restaurados desde MongoDB.`);
+  }
+
+  // "Fire and forget" (sin await): la respuesta al socket no debe esperar a
+  // Atlas, y un fallo de persistencia no debe romper la partida en curso.
+  _guardarJugador(jugador) {
+    if (!this.persistenciaActiva) return;
+    Jugador.findOneAndUpdate(
+      { id: jugador.id },
+      {
+        id: jugador.id,
+        nombre: jugador.nombre,
+        color: jugador.color,
+        fila: jugador.fila,
+        columna: jugador.columna,
+        score: jugador.score,
+      },
+      { upsert: true }
+    ).catch((err) => console.error("CIA: error guardando jugador en MongoDB:", err.message));
+  }
+
+  _guardarTablero() {
+    if (!this.persistenciaActiva) return;
+    Tablero.findOneAndUpdate(
+      { _id: "tablero" },
+      { celdas: this.tablero },
+      { upsert: true }
+    ).catch((err) => console.error("CIA: error guardando tablero en MongoDB:", err.message));
   }
 
   colorEnUso(colorId, excluirJugadorId) {
@@ -112,6 +175,7 @@ class GameState {
       ultimaAccion: Date.now(),
     };
     this.jugadores.set(jugador.id, jugador);
+    this._guardarJugador(jugador);
     return { ok: true, jugador, esNuevo: true };
   }
 
@@ -162,6 +226,8 @@ class GameState {
       puntajeCambio = true;
     }
     jugador.ultimaAccion = Date.now();
+    this._guardarTablero();
+    if (puntajeCambio) this._guardarJugador(jugador);
     return { ok: true, celda, jugador, puntajeCambio };
   }
 
@@ -174,12 +240,21 @@ class GameState {
     celda.color = jugador.color;
     celda.jugadorId = jugadorId;
     jugador.ultimaAccion = Date.now();
+    this._guardarTablero();
     return { ok: true, celda };
   }
 
   reiniciar() {
     this.tablero = crearTablero();
     for (const jugador of this.jugadores.values()) jugador.score = 0;
+    if (this.persistenciaActiva) {
+      Tablero.findOneAndUpdate({ _id: "tablero" }, { celdas: this.tablero }, { upsert: true }).catch((err) =>
+        console.error("CIA: error reiniciando tablero en MongoDB:", err.message)
+      );
+      Jugador.updateMany({}, { score: 0 }).catch((err) =>
+        console.error("CIA: error reiniciando puntajes en MongoDB:", err.message)
+      );
+    }
   }
 }
 

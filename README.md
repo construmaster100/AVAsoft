@@ -42,6 +42,15 @@ Abre `http://localhost:4000/`. La cancha **necesita** el servidor Node
 corriendo — Socket.IO sincroniza el ingreso de jugadores, el movimiento y las
 marcas; abrir los `.html` como archivo local no funciona.
 
+### Persistencia (opcional)
+
+Si defines `MONGODB_URI` (en `.env` local, o como variable de entorno en
+Render → el servicio `ADSOAVAsoft` → Environment), el jugador y el tablero
+(marcas, colores, puntajes) se guardan en MongoDB Atlas y sobreviven a un
+reinicio del proceso — por ejemplo el spin-down de Render por inactividad.
+Sin esa variable, el servidor sigue funcionando igual, solo que en memoria
+(el estado se pierde al reiniciar).
+
 ## Estructura de la cancha CR7
 
 ```
