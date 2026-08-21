@@ -8,6 +8,7 @@ const COLS = 10;
 const TOTAL_CELDAS = ROWS * COLS;
 const MAX_JUGADORES = 20;
 const PUNTOS_POR_CELDA = 3;
+const PUNTOS_POR_DECOLORAR = 2;
 const TOP_N = 15;
 const MS_ANTES_DE_LIBERAR_COLOR = 8000;
 
@@ -35,6 +36,7 @@ function crearTablero() {
       marca: null,
       color: null,
       jugadorId: null,
+      marcadorId: null,
       puntosOtorgados: false,
     });
   }
@@ -220,6 +222,7 @@ class GameState {
     const celda = this.tablero[celdaId - 1];
     celda.marca = marca;
     celda.jugadorId = jugadorId;
+    celda.marcadorId = jugadorId;
     celda.puntosOtorgados = true;
     jugador.score += PUNTOS_POR_CELDA;
     jugador.ultimaAccion = Date.now();
@@ -234,11 +237,23 @@ class GameState {
     if (!Number.isInteger(celdaId) || celdaId < 1 || celdaId > TOTAL_CELDAS) return { ok: false };
 
     const celda = this.tablero[celdaId - 1];
-    celda.color = jugador.color;
+    const seDecolora = celda.color === jugador.color;
+    celda.color = seDecolora ? null : jugador.color;
     celda.jugadorId = jugadorId;
     jugador.ultimaAccion = Date.now();
     this._guardarTablero();
-    return { ok: true, celda };
+
+    let jugadorPenalizado = null;
+    if (seDecolora && celda.marcadorId) {
+      const marcador = this.jugadores.get(celda.marcadorId);
+      if (marcador) {
+        marcador.score = Math.max(0, marcador.score - PUNTOS_POR_DECOLORAR);
+        this._guardarJugador(marcador);
+        jugadorPenalizado = marcador;
+      }
+    }
+
+    return { ok: true, celda, jugadorPenalizado };
   }
 
   reiniciar() {

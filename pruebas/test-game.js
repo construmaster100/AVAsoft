@@ -58,17 +58,14 @@ function assert(cond, msg) {
   assert(celda.id === celdaId && celda.marca === "X", "celda 25 queda marcada con X");
   assert(jugadorActualizado.id === j1id && jugadorActualizado.score === 3, "jugador 1 gana 3 puntos por la primera marca: score=" + jugadorActualizado.score);
 
-  // re-marcar la misma celda no debe volver a sumar puntos
-  let segundoScoreEvent = false;
-  const guard2 = () => { segundoScoreEvent = true; };
-  s2.on("jugador_actualizado", guard2);
+  // re-marcar la misma celda SÍ debe volver a sumar puntos (aunque ya esté tachada)
+  const reMarcaScorePromise = once(s2, "jugador_actualizado");
   s1.emit("marcar", { celdaId, marca: "O" });
-  await sleep(150);
-  s2.off("jugador_actualizado", guard2);
-  assert(!segundoScoreEvent, "re-marcar la misma celda no otorga puntos de nuevo");
+  const jugadorTrasRemarcar = await reMarcaScorePromise;
+  assert(jugadorTrasRemarcar.id === j1id && jugadorTrasRemarcar.score === 6, "re-marcar la misma celda vuelve a otorgar puntos: score=" + jugadorTrasRemarcar.score);
 
   const top5 = await emit(s2, "observar", {});
-  assert(top5.top5[0].id === j1id && top5.top5[0].score === 3, "TOP5 refleja el puntaje de jugador 1");
+  assert(top5.top5[0].id === j1id && top5.top5[0].score === 6, "TOP5 refleja el puntaje de jugador 1");
 
   // cambiar color de celda (jugador 2 pinta la celda 25, ya marcada por jugador 1)
   const colorPromise = once(s1, "celda_actualizada");
@@ -78,6 +75,16 @@ function assert(cond, msg) {
   // puntaje extra); lo que valida RF-19 acá es que pintar no borra la marca.
   assert(celdaPintada.color === "azul" && celdaPintada.marca === "O", "jugador 2 pinta la celda 25 sin borrar la marca (RF-19)");
 
+  // volver a presionar el propio color decolora la celda al estado original
+  // y penaliza con -2 puntos a quien marcó la celda (jugador 1, no jugador 2)
+  const penalizacionPromise = once(s1, "jugador_actualizado");
+  const decolorPromise = once(s1, "celda_actualizada");
+  s2.emit("cambiar_color_celda", { celdaId });
+  const celdaDecolorada = await decolorPromise;
+  const jugadorPenalizado = await penalizacionPromise;
+  assert(celdaDecolorada.color === null, "presionar el mismo color de nuevo decolora la celda al estado original");
+  assert(jugadorPenalizado.id === j1id && jugadorPenalizado.score === 4, "decolorar penaliza con -2 al jugador que marcó la celda: score=" + jugadorPenalizado.score);
+
   // reconexión: nueva conexión con el mismo jugadorId no debe crear un jugador duplicado
   s1.disconnect();
   await sleep(50);
@@ -86,7 +93,7 @@ function assert(cond, msg) {
   const r1b = await emit(s1b, "unirse", { nombre: "Carlos", color: "verde", jugadorId: j1id });
   assert(r1b.ok && r1b.jugadorId === j1id, "reconexión reclama el mismo jugadorId");
   assert(r1b.estado.jugadores.filter((j) => j.color === "verde").length === 1, "no se duplica el jugador al reconectar");
-  assert(r1b.estado.jugadores.find((j) => j.id === j1id).score === 3, "el score se conserva tras la reconexión");
+  assert(r1b.estado.jugadores.find((j) => j.id === j1id).score === 4, "el score se conserva tras la reconexión");
 
   console.log("\nTodas las verificaciones terminaron.");
   s1b.disconnect();
