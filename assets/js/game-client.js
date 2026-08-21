@@ -76,6 +76,19 @@ const CIA = (() => {
     socket.emit("admin_reiniciar");
   }
 
+  // Si la conexión se cae y se restablece (por ejemplo, la instancia gratuita
+  // de Render se reinició por inactividad), el navegador vuelve a conectar el
+  // socket solo, pero del lado del servidor es una conexión nueva sin
+  // "unirse" — las acciones quedarían ignoradas en silencio. "connect" se
+  // dispara en cada conexión exitosa (la primera y cualquier reconexión); a
+  // partir de la segunda vez, recargamos para rehacer todo el arranque
+  // (rejoin + estado fresco) en vez de seguir sobre un socket a medio unir.
+  let yaConectadoUnaVez = false;
+  socket.on("connect", () => {
+    if (yaConectadoUnaVez) window.location.reload();
+    yaConectadoUnaVez = true;
+  });
+
   return {
     socket,
     obtenerSesion,
