@@ -92,8 +92,8 @@ class GameState {
     }
 
     const nombreLimpio = String(nombre || "").trim().slice(0, 20);
-    if (!nombreLimpio) return { ok: false, motivo: "Ingresá un nombre de usuario." };
-    if (!PALETA_IDS.has(color)) return { ok: false, motivo: "Elegí un color válido." };
+    if (!nombreLimpio) return { ok: false, motivo: "Ingresa un nombre de usuario." };
+    if (!PALETA_IDS.has(color)) return { ok: false, motivo: "Elige un color válido." };
     if (this.colorEnUso(color)) return { ok: false, motivo: "Ese color ya está en uso por otro jugador conectado." };
     if (this.jugadoresConectados() >= MAX_JUGADORES) {
       return { ok: false, motivo: `La sala está llena (máximo ${MAX_JUGADORES} jugadores).` };
