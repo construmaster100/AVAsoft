@@ -74,6 +74,10 @@ io.on("connection", (socket) => {
     const resultado = estado.cambiarColorCelda(jugadorId, Number(celdaId));
     if (!resultado.ok) return;
     io.to("sala-1").emit("celda_actualizada", resultado.celda);
+    if (resultado.jugadorPenalizado) {
+      io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.jugadorPenalizado));
+      io.to("sala-1").emit("top5_actualizado", estado.top5());
+    }
   });
 
   socket.on("admin_reiniciar", () => {

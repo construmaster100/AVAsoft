@@ -8,6 +8,7 @@ const celdaSchema = new mongoose.Schema(
     marca: { type: String, default: null },
     color: { type: String, default: null },
     jugadorId: { type: String, default: null },
+    marcadorId: { type: String, default: null },
     puntosOtorgados: { type: Boolean, default: false },
   },
   { _id: false }
