@@ -78,7 +78,7 @@ class GameState {
       .map((j) => ({ id: j.id, nombre: j.nombre, color: j.color, score: j.score }));
   }
 
-  unirse({ nombre, color, jugadorId }) {
+  unirse({ nombre, color, jugadorId, socketId }) {
     if (jugadorId && this.jugadores.has(jugadorId)) {
       const jugador = this.jugadores.get(jugadorId);
       const timer = this.timersDesconexion.get(jugadorId);
@@ -87,6 +87,7 @@ class GameState {
         this.timersDesconexion.delete(jugadorId);
       }
       jugador.conectado = true;
+      jugador.socketId = socketId;
       jugador.ultimaAccion = Date.now();
       return { ok: true, jugador, esNuevo: false };
     }
@@ -107,15 +108,24 @@ class GameState {
       columna: Math.floor(Math.random() * COLS),
       score: 0,
       conectado: true,
+      socketId,
       ultimaAccion: Date.now(),
     };
     this.jugadores.set(jugador.id, jugador);
     return { ok: true, jugador, esNuevo: true };
   }
 
-  desconectar(jugadorId) {
+  // Solo desconecta si "socketId" sigue siendo la conexión activa de ese
+  // jugador. Cuando el navegador navega de una página a otra (login →
+  // cancha), la conexión vieja puede tardar en avisar su cierre más de lo
+  // que tarda la nueva en reclamar el mismo jugadorId — si se procesara ese
+  // "disconnect" tardío sin esta verificación, marcaría como desconectado a
+  // un jugador que en realidad ya está activo en la conexión nueva, y sus
+  // acciones quedarían ignoradas en silencio.
+  desconectar(jugadorId, socketId) {
     const jugador = this.jugadores.get(jugadorId);
     if (!jugador) return;
+    if (socketId && jugador.socketId !== socketId) return;
     jugador.conectado = false;
     jugador.ultimaAccion = Date.now();
     const timer = setTimeout(() => {

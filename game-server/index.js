@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("unirse", ({ nombre, color, jugadorId } = {}, cb) => {
-    const resultado = estado.unirse({ nombre, color, jugadorId });
+    const resultado = estado.unirse({ nombre, color, jugadorId, socketId: socket.id });
     if (!resultado.ok) {
       if (typeof cb === "function") cb({ ok: false, motivo: resultado.motivo });
       return;
@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     const jugadorId = socket.data.jugadorId;
     if (!jugadorId) return;
-    estado.desconectar(jugadorId);
+    estado.desconectar(jugadorId, socket.id);
     io.to("sala-1").emit("jugador_desconectado", { id: jugadorId });
   });
 });
