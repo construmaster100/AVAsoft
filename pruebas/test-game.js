@@ -58,14 +58,16 @@ function assert(cond, msg) {
   assert(celda.id === celdaId && celda.marca === "X", "celda 25 queda marcada con X");
   assert(jugadorActualizado.id === j1id && jugadorActualizado.score === 3, "jugador 1 gana 3 puntos por la primera marca: score=" + jugadorActualizado.score);
 
-  // re-marcar la misma celda SÍ debe volver a sumar puntos (aunque ya esté tachada)
+  // re-marcar una celda ya marcada SÍ vuelve a otorgar los 3 puntos al que
+  // marca, pero también penaliza con -2 al marcador anterior de esa celda
+  // (aquí el mismo jugador 1: 3 - 2 + 3 = 4)
   const reMarcaScorePromise = once(s2, "jugador_actualizado");
   s1.emit("marcar", { celdaId, marca: "O" });
   const jugadorTrasRemarcar = await reMarcaScorePromise;
-  assert(jugadorTrasRemarcar.id === j1id && jugadorTrasRemarcar.score === 6, "re-marcar la misma celda vuelve a otorgar puntos: score=" + jugadorTrasRemarcar.score);
+  assert(jugadorTrasRemarcar.id === j1id && jugadorTrasRemarcar.score === 4, "re-marcar la misma celda otorga y penaliza (mismo jugador): score=" + jugadorTrasRemarcar.score);
 
   const top5 = await emit(s2, "observar", {});
-  assert(top5.top5[0].id === j1id && top5.top5[0].score === 6, "TOP5 refleja el puntaje de jugador 1");
+  assert(top5.top5[0].id === j1id && top5.top5[0].score === 4, "TOP5 refleja el puntaje de jugador 1");
 
   // cambiar color de celda (jugador 2 pinta la celda 25, ya marcada por jugador 1)
   const colorPromise = once(s1, "celda_actualizada");
@@ -83,7 +85,20 @@ function assert(cond, msg) {
   const celdaDecolorada = await decolorPromise;
   const jugadorPenalizado = await penalizacionPromise;
   assert(celdaDecolorada.color === null, "presionar el mismo color de nuevo decolora la celda al estado original");
-  assert(jugadorPenalizado.id === j1id && jugadorPenalizado.score === 4, "decolorar penaliza con -2 al jugador que marcó la celda: score=" + jugadorPenalizado.score);
+  assert(jugadorPenalizado.id === j1id && jugadorPenalizado.score === 2, "decolorar penaliza con -2 al jugador que marcó la celda: score=" + jugadorPenalizado.score);
+
+  // jugador 2 "roba" la celda 25 marcándola: jugador 1 (marcador anterior)
+  // pierde 2 puntos y jugador 2 gana los 3 puntos de la marca
+  const actualizacionesRobo = [];
+  const collectorRobo = (j) => actualizacionesRobo.push(j);
+  s1.on("jugador_actualizado", collectorRobo);
+  s2.emit("marcar", { celdaId, marca: "X" });
+  await sleep(150);
+  s1.off("jugador_actualizado", collectorRobo);
+  const ganadorRobo = actualizacionesRobo.find((j) => j.id === j2id);
+  const penalizadoRobo = actualizacionesRobo.find((j) => j.id === j1id);
+  assert(!!ganadorRobo && ganadorRobo.score === 3, "jugador 2 gana 3 puntos al marcar la celda robada: score=" + (ganadorRobo && ganadorRobo.score));
+  assert(!!penalizadoRobo && penalizadoRobo.score === 0, "jugador 1 pierde 2 puntos por perder la celda ante jugador 2: score=" + (penalizadoRobo && penalizadoRobo.score));
 
   // reconexión: nueva conexión con el mismo jugadorId no debe crear un jugador duplicado
   s1.disconnect();
@@ -93,7 +108,7 @@ function assert(cond, msg) {
   const r1b = await emit(s1b, "unirse", { nombre: "Carlos", color: "verde", jugadorId: j1id });
   assert(r1b.ok && r1b.jugadorId === j1id, "reconexión reclama el mismo jugadorId");
   assert(r1b.estado.jugadores.filter((j) => j.color === "verde").length === 1, "no se duplica el jugador al reconectar");
-  assert(r1b.estado.jugadores.find((j) => j.id === j1id).score === 4, "el score se conserva tras la reconexión");
+  assert(r1b.estado.jugadores.find((j) => j.id === j1id).score === 0, "el score se conserva tras la reconexión");
 
   console.log("\nTodas las verificaciones terminaron.");
   s1b.disconnect();
