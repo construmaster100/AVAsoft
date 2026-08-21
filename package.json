@@ -1,15 +1,15 @@
 {
   "name": "lms-sena",
   "version": "1.0.0",
-  "description": "SENAEnglish — evaluación interactiva de inglés (IF, THEN, USED TO, INFINITIVE) en tiempo real con Node.js, Express y Socket.IO.",
+  "description": "",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "start": "node server/server.js",
-    "dev:game": "node game-server/index.js",
-    "test": "node pruebas/test-senaenglish.js"
+    "start": "node game-server/index.js",
+    "start:adso": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",

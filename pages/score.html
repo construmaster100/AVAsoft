@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOP 5 Scores · CIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="board-body">
+
+  <main class="board-wrap">
+    <header class="board-header">
+      <span class="topbar-eyebrow">CIA · Cancha Interactiva Asincrónica</span>
+      <h1>TOP 5 SCORES</h1>
+      <p id="connected-count" class="board-sub">— jugadores conectados</p>
+    </header>
+
+    <ol class="top5-board" id="top5-board"></ol>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../assets/js/game-client.js"></script>
+  <script>
+    const board = document.getElementById("top5-board");
+    const connectedCount = document.getElementById("connected-count");
+    let paletaPorId = {};
+
+    function renderTop5(top5) {
+      board.innerHTML = "";
+      if (!top5.length) {
+        board.innerHTML = '<li class="top5-empty">Todavía no hay puntajes.</li>';
+        return;
+      }
+      top5.forEach((j, i) => {
+        const li = document.createElement("li");
+        li.className = "top5-board-item";
+        li.innerHTML = `
+          <span class="top5-board-pos">${i + 1}</span>
+          <span class="color-dot" style="background:${paletaPorId[j.color] || "#999"}"></span>
+          <span class="top5-board-name">${j.nombre}</span>
+          <span class="top5-board-score">${j.score}</span>`;
+        board.appendChild(li);
+      });
+    }
+
+    function aplicarEstado(estado) {
+      estado.config.paleta.forEach((c) => { paletaPorId[c.id] = c.hex; });
+      const conectados = estado.jugadores.filter((j) => j.conectado).length;
+      connectedCount.textContent = `${conectados} jugador${conectados === 1 ? "" : "es"} conectado${conectados === 1 ? "" : "s"}`;
+      renderTop5(estado.top5);
+    }
+
+    CIA.observar().then(aplicarEstado);
+    CIA.socket.on("top5_actualizado", renderTop5);
+    CIA.socket.on("jugador_nuevo", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("jugador_reconectado", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("jugador_desconectado", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("estado_inicial", aplicarEstado);
+  </script>
+</body>
+</html>

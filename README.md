@@ -1,22 +1,23 @@
-# SENAEnglish — Sistema de Evaluación Interactiva de Inglés
+# CIA — Cancha Interactiva Asincrónica «CR7»
 
-Este README documenta específicamente **SENAEnglish**, la aplicación que corre
-en la raíz de este repositorio (`index.html`, `pages/`, `assets/`,
-`game-server/`) y que es lo que despliega el servicio de Render conectado a
-este repo/branch. El resto de carpetas de este repositorio son otros
-entregables del programa SENA ADSO (ficha 3293836) que conviven aquí pero
-**no** son parte de SENAEnglish — ver la sección "Otros contenidos de este
-repositorio" más abajo.
+Este README documenta la aplicación que corre en la raíz de este repositorio
+(`index.html`, `pages/`, `assets/`, `game-server/`) y que es lo que despliega
+el servicio de Render conectado a este repo/branch: una **cancha
+interactiva multijugador** de 70 casillas donde cada jugador entra con
+nombre y color, se mueve libremente por la cancha en tiempo real (juego
+concurrente, no por turnos) y puede dejar marcas, sincronizado vía
+Socket.IO. El servidor (`game-server/gameState.js`) es la única autoridad
+sobre el estado de la partida.
 
-Cada participante ingresa con nombre y color, responde un cuestionario de
-**30 preguntas** sobre **IF, THEN, USED TO e INFINITIVE**, y su resultado se
-sincroniza en tiempo real con un ranking compartido de hasta **20
-participantes**. SENAEnglish reemplaza el modelo anterior de este mismo
-directorio raíz (una "cancha interactiva" de fútbol con grilla 7×10,
-navegación WASD y marcas X/O) según
-[`docs/SENAEnglish_Documento_Requisitos.docx`](docs/SENAEnglish_Documento_Requisitos.docx),
-que es la fuente de requisitos vigente para `index.html` / `pages/` /
-`game-server/`.
+Documentación técnica completa en
+[`docs/CIA - Documentacion del Proyecto.md`](docs/CIA%20-%20Documentacion%20del%20Proyecto.md).
+
+> **Nota:** entre el 21 y 22 de agosto de 2026 este repositorio tuvo, por un
+> tiempo breve, una implementación de SENAEnglish (cuestionario de inglés)
+> desplegada por error en lugar de la cancha CR7. Se revirtió porque
+> SENAEnglish es un proyecto aparte que vive únicamente en
+> `construmaster100/MAP` / `englishcoding.onrender.com` — ver
+> [`docs/2026-08-21_diagnostico-despliegue-render.md`](docs/2026-08-21_diagnostico-despliegue-render.md).
 
 ## Despliegue
 
@@ -27,9 +28,8 @@ que es la fuente de requisitos vigente para `index.html` / `pages/` /
 | Render (en vivo) | https://adsoavasoft.onrender.com |
 
 Este repositorio es independiente de `construmaster100/MAP` (carpeta local
-`D:\FT3P`, servicio Render `englishcoding`) — son dos proyectos separados que
-por coincidencia recibieron una implementación similar de SENAEnglish; no
-comparten historial ni despliegue.
+`D:\FT3P`, servicio Render `englishcoding`, proyecto SENAEnglish) — son dos
+proyectos separados, sin historial ni despliegue en común.
 
 ## Cómo correrlo
 
@@ -38,78 +38,37 @@ npm install
 npm run dev:game
 ```
 
-Abre `http://localhost:4000/`. El cuestionario **necesita** el servidor Node
-corriendo — Socket.IO sincroniza el ingreso de participantes, valida cada
-respuesta y arma el ranking; abrir los `.html` como archivo local no
-funciona (ver el aviso que muestra `assets/js/senaenglish-client.js` en ese caso).
+Abre `http://localhost:4000/`. La cancha **necesita** el servidor Node
+corriendo — Socket.IO sincroniza el ingreso de jugadores, el movimiento y las
+marcas; abrir los `.html` como archivo local no funciona.
 
-Para verificar la lógica del servidor (sin navegador) con el servidor ya corriendo:
-
-```
-npm test
-```
-
-## Estructura de SENAEnglish
+## Estructura de la cancha CR7
 
 ```
-index.html                     Login: nombre + color (RF-02, RF-03)
+index.html                     Login: nombre + color
 pages/
-  quiz.html                    Cuestionario: pregunta + 4 opciones con giro CSS
-  resultado.html                Resultado final del participante + ranking (hasta 20)
-  administrador.html            Panel de administración: participantes, ranking, reinicio
+  cancha.html                  Vista principal de la cancha (grilla 7×10)
+  jugador 1.html, jugador 2.html   Vistas auxiliares por jugador
+  score.html                    Marcador
+  Lobby de espera.html          Sala de espera antes de entrar
 assets/
-  css/style.css                 Estilos (tokens compartidos + login + quiz + paneles de solo lectura)
-  js/senaenglish-client.js      Capa de conexión Socket.IO (sesión, unirse, responder, finalizar)
-  js/quiz.js                    Lógica del cuestionario (pages/quiz.html)
+  js/game-client.js             Capa de conexión Socket.IO (cliente)
+  js/script.js                  Lógica de interacción de la cancha
+  img/CANCHA FUTBOL/             Assets gráficos de la cancha
 game-server/
-  index.js                      Servidor Express + Socket.IO (eventos, sala única)
-  gameState.js                  Estado del servidor: participantes, respuestas, ranking (autoridad)
-  questions.js                  Banco de 30 preguntas (IF 8 · THEN 7 · USED TO 7 · INFINITIVE 8)
+  index.js                      Servidor Express + Socket.IO
+  gameState.js                  Estado del servidor: jugadores, posiciones, marcas (autoridad)
 pruebas/
-  test-senaenglish.js           Prueba de flujo por Socket.IO (unirse/responder/reconexión/ranking)
+  test-game.js                  Prueba de flujo por Socket.IO
 docs/
-  SENAEnglish_Documento_Requisitos.docx   Documento de requisitos vigente de SENAEnglish
+  CIA - Documentacion del Proyecto.md/.docx   Documentación técnica vigente
 ```
 
-## Arquitectura
-
-```
-GITHUB → SENAEnglish → Node.js + Express → Socket.IO
-                                              │
-                        ┌─────────────────────┼─────────────────────┐
-                        ▼                     ▼                     ▼
-                   Usuario 1             Usuario 2             Usuario N
-                        └─────────────────────┼─────────────────────┘
-                                              ▼
-                                  ESTADO DE EVALUACIÓN (servidor)
-                                   ├── Cuestionario (30 preguntas)
-                                   └── Ranking (20 participantes)
-```
-
-El servidor es la única autoridad sobre la pregunta actual, la corrección de
-cada respuesta y el score (RNF-06, RNF-07): el cliente nunca recibe la
-respuesta correcta de una pregunta hasta después de contestarla.
-
-## Eventos Socket.IO
-
-**Cliente → servidor**: `unirse`, `responder`, `finalizar`, `observar`
-
-**Servidor → clientes**: `jugador_nuevo` / `jugador_reconectado` /
-`jugador_desconectado`, `pregunta_actualizada`, `respuesta_validada`,
-`jugador_actualizado`, `ranking_actualizado` (RF-24), `evaluacion_finalizada`
-
-## Reglas de puntuación
-
-- 30 preguntas, 4 opciones cada una, una sola correcta.
-- Acierto = 1 punto · Desacierto = 0 puntos · Score máximo = 30.
-- `porcentaje = (aciertos / 30) × 100`.
-- Un participante no puede responder dos veces la misma pregunta ni modificar
-  el resultado una vez finalizada la evaluación.
-
-## Otros contenidos de este repositorio (no forman parte de SENAEnglish)
+## Otros contenidos de este repositorio (no forman parte de la cancha CR7)
 
 Este repositorio reúne varios entregables independientes del mismo programa
-formativo; ninguno de los siguientes fue tocado al construir SENAEnglish:
+formativo (ADSO, ficha 3293836); ninguno de los siguientes es parte de la
+cancha CR7:
 
 - `pages/aprendiz.html`, `pages/instructor.html`, `docs/documentacion/` — la
   plataforma AVA SENA (LMS) y su documentación de requisitos (RF01–RF13).
@@ -117,6 +76,6 @@ formativo; ninguno de los siguientes fue tocado al construir SENAEnglish:
   `pages/Sennova/`, `pages/LMS/` — micrositios institucionales independientes.
 - `client/`, `shared/`, `server/sockets/` — una arquitectura modular más
   nueva del juego de cancha (entidades, física, colisiones), separada del
-  `game-server/` que usa SENAEnglish.
+  `game-server/` que usa la versión actual desplegada.
 - `server/` (routes, models, config) — API REST propia (Express + Mongoose)
-  de otro entregable, no usada por SENAEnglish.
+  de otro entregable, no usada por la cancha CR7.

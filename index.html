@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SENAEnglish — Sistema de Evaluación Interactiva de Inglés</title>
+<title>CIA — Cancha Interactiva Asincrónica «CR7»</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,9 +13,9 @@
 
   <main class="login-wrap">
     <section class="login-card">
-      <span class="topbar-eyebrow">SENAEnglish · Evaluación de inglés</span>
-      <h1 class="login-title">Ingresa a la evaluación</h1>
-      <p class="login-sub">Elige tu nombre y tu color, y responde un cuestionario de 30 preguntas sobre IF, THEN, USED TO e INFINITIVE. Tu resultado se sincroniza con el ranking en tiempo real.</p>
+      <span class="topbar-eyebrow">CIA · Cancha Interactiva Asincrónica</span>
+      <h1 class="login-title">Entra a la cancha «CR7»</h1>
+      <p class="login-sub">Elige tu nombre y tu color. Todos los jugadores conectados comparten la misma cancha de 70 casillas en tiempo real.</p>
 
       <form id="login-form" class="login-form">
         <label class="login-label" for="nombre-input">Nombre de usuario</label>
@@ -26,13 +26,13 @@
 
         <p id="login-error" class="login-error" hidden></p>
 
-        <button type="submit" class="login-submit" id="login-submit">Comenzar la evaluación</button>
+        <button type="submit" class="login-submit" id="login-submit">Entrar a la cancha</button>
       </form>
     </section>
 
     <aside class="login-card login-lobby">
       <div class="minimap-heading">
-        <span>Participantes conectados</span>
+        <span>Sala de espera</span>
         <span id="lobby-count">0 conectados</span>
       </div>
       <ul id="lobby-list" class="lobby-list"></ul>
@@ -40,7 +40,7 @@
   </main>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="assets/js/senaenglish-client.js"></script>
+  <script src="assets/js/game-client.js"></script>
   <script>
     const colorGrid = document.getElementById("color-grid");
     const form = document.getElementById("login-form");
@@ -53,12 +53,12 @@
     let paleta = [];
     let colorElegido = null;
 
-    function coloresTomados(participantes) {
-      return new Set(participantes.filter((p) => p.conectado).map((p) => p.color));
+    function coloresTomados(jugadores) {
+      return new Set(jugadores.filter((j) => j.conectado).map((j) => j.color));
     }
 
-    function pintarPaleta(participantes) {
-      const tomados = coloresTomados(participantes);
+    function pintarPaleta(jugadores) {
+      const tomados = coloresTomados(jugadores);
       colorGrid.innerHTML = "";
       paleta.forEach((c) => {
         const btn = document.createElement("button");
@@ -81,42 +81,40 @@
       });
     }
 
-    function pintarLobby(participantes) {
-      const conectados = participantes.filter((p) => p.conectado);
+    function pintarLobby(jugadores) {
+      const conectados = jugadores.filter((j) => j.conectado);
       lobbyCount.textContent = `${conectados.length} conectado${conectados.length === 1 ? "" : "s"}`;
       lobbyList.innerHTML = "";
       if (!conectados.length) {
         const li = document.createElement("li");
         li.className = "lobby-empty";
-        li.textContent = "Todavía no hay nadie en la evaluación. ¡Sé el primero!";
+        li.textContent = "Todavía no hay nadie en la cancha. ¡Sé el primero!";
         lobbyList.appendChild(li);
         return;
       }
-      conectados.forEach((p) => {
-        const info = paleta.find((c) => c.id === p.color);
+      conectados.forEach((j) => {
+        const info = paleta.find((c) => c.id === j.color);
         const li = document.createElement("li");
-        const progreso = p.finalizado ? "Finalizado" : `${p.preguntaActual} / ${p.totalPreguntas}`;
-        li.innerHTML = `<span class="color-dot" style="background:${info ? info.hex : "#999"}"></span> ${p.nombre} <span class="lobby-progress">${progreso}</span>`;
+        li.innerHTML = `<span class="color-dot" style="background:${info ? info.hex : "#999"}"></span> ${j.nombre}`;
         lobbyList.appendChild(li);
       });
     }
 
     function aplicarEstado(estado) {
       paleta = estado.config.paleta;
-      pintarPaleta(estado.participantes);
-      pintarLobby(estado.participantes);
+      pintarPaleta(estado.jugadores);
+      pintarLobby(estado.jugadores);
     }
 
-    SENAEnglish.observar().then(aplicarEstado);
-    SENAEnglish.socket.on("jugador_nuevo", () => SENAEnglish.observar().then(aplicarEstado));
-    SENAEnglish.socket.on("jugador_reconectado", () => SENAEnglish.observar().then(aplicarEstado));
-    SENAEnglish.socket.on("jugador_desconectado", () => SENAEnglish.observar().then(aplicarEstado));
-    SENAEnglish.socket.on("jugador_actualizado", () => SENAEnglish.observar().then(aplicarEstado));
+    CIA.observar().then(aplicarEstado);
+    CIA.socket.on("jugador_nuevo", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("jugador_reconectado", () => CIA.observar().then(aplicarEstado));
+    CIA.socket.on("jugador_desconectado", () => CIA.observar().then(aplicarEstado));
 
-    const sesionPrevia = SENAEnglish.obtenerSesion();
+    const sesionPrevia = CIA.obtenerSesion();
     if (sesionPrevia) {
-      SENAEnglish.reclamarSesion().then((res) => {
-        if (res.ok) window.location.href = "pages/quiz.html";
+      CIA.reclamarSesion().then((res) => {
+        if (res.ok) window.location.href = "pages/cancha.html";
       });
     }
 
@@ -135,14 +133,14 @@
         return;
       }
       submitBtn.disabled = true;
-      const respuesta = await SENAEnglish.unirse(nombre, colorElegido);
+      const respuesta = await CIA.unirse(nombre, colorElegido);
       submitBtn.disabled = false;
       if (!respuesta.ok) {
-        errorEl.textContent = respuesta.motivo || "No se pudo ingresar a la evaluación.";
+        errorEl.textContent = respuesta.motivo || "No se pudo entrar a la cancha.";
         errorEl.hidden = false;
         return;
       }
-      window.location.href = "pages/quiz.html";
+      window.location.href = "pages/cancha.html";
     });
   </script>
 </body>
