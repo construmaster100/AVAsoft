@@ -68,26 +68,26 @@ io.on("connection", (socket) => {
     if (resultado.ok) io.to("sala-1").emit("jugador_defendiendo", { id: resultado.jugador.id });
   });
 
-  socket.on("atacar", ({ dr, dc } = {}) => {
-    const resultado = estado.atacar(socket.data.jugadorId, Number(dr) || 0, Number(dc) || 0);
-    if (!resultado.ok || !resultado.impacto) return;
-    io.to("sala-1").emit("ataque_resuelto", {
-      atacanteId: resultado.atacante.id,
-      objetivoId: resultado.objetivo.id,
-      bloqueado: resultado.bloqueado,
-      danio: resultado.danio,
-      vida: resultado.objetivo.vida,
+  socket.on("atacar", () => {
+    const resultado = estado.atacar(socket.data.jugadorId);
+    if (!resultado.ok || !resultado.impactos.length) return;
+    resultado.impactos.forEach((impacto) => {
+      io.to("sala-1").emit("ataque_resuelto", {
+        atacanteId: resultado.atacante.id,
+        objetivoId: impacto.objetivo.id,
+        bloqueado: impacto.bloqueado,
+        danio: impacto.danio,
+        vida: impacto.objetivo.vida,
+        vidas: impacto.objetivo.vidas,
+        perdioVida: impacto.perdioVida,
+        eliminado: impacto.eliminado,
+      });
+      io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(impacto.objetivo));
+      if (impacto.eliminado) {
+        io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.atacante));
+        io.to("sala-1").emit("top5_actualizado", estado.top5());
+      }
     });
-    io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.objetivo));
-  });
-
-  socket.on("anotar_gol", ({ puntos } = {}) => {
-    const jugadorId = socket.data.jugadorId;
-    if (!jugadorId) return;
-    const resultado = estado.anotarGol(jugadorId, Number(puntos));
-    if (!resultado.ok) return;
-    io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.jugador));
-    io.to("sala-1").emit("top5_actualizado", estado.top5());
   });
 
   socket.on("marcar", ({ celdaId, marca } = {}) => {

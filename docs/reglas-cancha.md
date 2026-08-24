@@ -45,21 +45,8 @@ La numeración verde no continúa la numeración omega y no incluye las casillas
 - Las líneas internas normales son blancas de `1 px`.
 - La línea vertical central entre `E` y `F` es blanca de `4 px`.
 - El contorno del área verde es blanco de `8 px`.
-- Las líneas especiales simétricas respecto al eje E–F son blancas de `5 px`.
 - La división horizontal de la fila central es amarilla, delgada y punteada, de `2 px`.
-- Las líneas de meta `LM` laterales de `A4` y `J4` son amarillas de `10 px`, sin relleno, con resplandor.
-- El amarillo solo se aplica al trazo lateral de esas casillas; nunca al fondo completo.
-
-## Franja simétrica
-
-La franja blanca especial se refleja respecto al eje vertical E–F. Toda modificación de esta franja debe conservar:
-
-- La misma distancia al eje en ambos lados.
-- La misma fila de inicio y final.
-- El mismo grosor de `5 px`.
-- La continuidad visual de sus segmentos.
-- El ancho del área (línea de área) es de `1 columna`: la columna `J` en el lado derecho y su espejo, la columna `A`, en el lado izquierdo. Cada área ocupa las filas `3` a `5`.
-- En `B4` e `I4` hay un semicírculo blanco de `5 px` (mismo grosor que la línea de área). Su diámetro coincide exactamente con el tramo de la línea de área que cruza la fila `4`, y el arco sobresale hacia el centro de la cancha (alejándose del arco de gol).
+- No hay línea de meta: se eliminó el complejo visual del arco de gol (líneas `LM`, línea de área y semicírculos de `B4`/`I4`) porque el juego ya no anota goles. El espacio cerrado de la cancha (el contorno del área verde) se conserva igual que antes.
 
 ## Centro de la cancha
 
@@ -87,30 +74,23 @@ La franja blanca especial se refleja respecto al eje vertical E–F. Toda modifi
 - El cuadro Instrucciones está en la parte inferior del sidebar y ocupa aproximadamente una cuarta parte de su altura.
 - El cuadro Instrucciones no es la fuente normativa de las reglas: la fuente normativa es este archivo Markdown.
 
-## Objetos balón / pickup objects (PO)
+## Sistema de combate
 
-Hay dos balones independientes, cada uno con su propia distancia de disparo y puntaje por gol:
+El juego ya no anota goles: la única mecánica de puntaje y progreso es el combate cuerpo a cuerpo entre jugadores conectados.
 
-| Balón | Forma | Casilla inicial | Distancia de disparo | Puntos por gol |
-| --- | --- | --- | --- | --- |
-| Balón blanco | Círculo, gradiente radial blanco→gris | `F4` | `2 casillas` | `5` |
-| Balón amarillo | Óvalo, gradiente radial amarillo→dorado oscuro | `E4` | `3 casillas` | `7` |
-
-- Ambos ocupan exactamente una casilla y comparten las mismas reglas de captura y disparo.
-- Cuando el personaje camina sobre la casilla de un balón, este se "atrapa": queda fijo a la posición del personaje que lo recogió y se mueve junto con él en cada paso siguiente. Los dos balones pueden estar atrapados a la vez si el jugador pasó por ambas casillas.
-- `X` ya no marca la casilla. Con al menos un balón atrapado, `X` dispara todos los balones atrapados a la vez, cada uno su propia distancia, a una velocidad de `1 casilla por decisegundo` (100 ms por casilla). Sin ningún balón atrapado, `X` no hace nada.
-- El disparo es siempre unidireccional (nunca diagonal) y preciso: la dirección es la de la flecha sostenida en ese momento o, si ninguna está sostenida, la última dirección de movimiento del jugador — reducida siempre al eje dominante (arriba/abajo/izquierda/derecha), incluso si ese último movimiento vino de un clic en una casilla lejana o en diagonal.
-- Al terminar el disparo (o si sale del tablero antes), el balón queda libre en su casilla final y puede volver a atraparse caminando sobre él.
-- Cada vez que un balón cruza la línea de meta amarilla (`J4` o `A4`, es decir entra a la casilla de marco pegada a esa línea) suma sus puntos por gol al puntaje. Un mismo disparo solo puede anotar una vez por balón.
-- El puntaje del jugador es únicamente esta suma de goles. Ocupar o visitar casillas, y presionar `X`, no otorgan puntos por sí solos.
+- Cada jugador tiene `25` puntos de vida al entrar y al reaparecer.
+- `X` ataca a la vez las 4 casillas colindantes (arriba, abajo, izquierda, derecha). Cualquier jugador conectado que esté en una de esas casillas pierde `1` punto de vida, salvo que esté bloqueando.
+- `C` bloquea: mientras se sostiene (ventana de `900 ms` por pulsación), el jugador no recibe daño de ningún ataque que lo alcance en ese instante.
+- Cada jugador tiene `3` vidas, representadas como corazones. Al llegar a `0` de vida, pierde un corazón y reaparece en el centro de la cancha (`E4`) con la vida llena.
+- Al perder el tercer corazón, el jugador queda eliminado y el juego lo saca automáticamente de la cancha (mismo efecto que el botón "Salir").
+- El jugador que deja a otro sin sus 3 vidas gana `10` puntos de score.
 
 ## Acciones informativas
 
-`Marcar O` y `Pintar` se muestran como referencias informativas no interactivas dentro de Instrucciones. Los atajos existentes son:
+Los atajos existentes son:
 
-- `X`: disparar el balón atrapado (ver sección anterior).
-- `O`: marcar con O.
-- `Espacio`: pintar o cambiar el color de la casilla.
+- `X`: atacar las casillas colindantes (ver "Sistema de combate").
+- `C`: bloquear un ataque.
 
 ## Regla de mantenimiento
 

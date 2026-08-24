@@ -64,8 +64,8 @@ const CIA = (() => {
     socket.emit("mover", { dr, dc });
   }
 
-  function atacar(dr, dc) {
-    socket.emit("atacar", { dr, dc });
+  function atacar() {
+    socket.emit("atacar");
   }
 
   function defender() {
@@ -78,10 +78,6 @@ const CIA = (() => {
 
   function cambiarColorCelda(celdaId) {
     socket.emit("cambiar_color_celda", { celdaId });
-  }
-
-  function anotarGol(puntos) {
-    socket.emit("anotar_gol", { puntos });
   }
 
   function reiniciarPartida() {
@@ -114,7 +110,6 @@ const CIA = (() => {
     defender,
     marcar,
     cambiarColorCelda,
-    anotarGol,
     reiniciarPartida,
   };
 })();

@@ -11,10 +11,14 @@ const PUNTOS_POR_CELDA = 3;
 const PENALIZACION_PUNTOS = 2;
 const TOP_N = 15;
 const MS_ANTES_DE_LIBERAR_COLOR = 8000;
-const VIDA_MAXIMA = 20;
-const DANIO_ATAQUE = 5;
+const VIDA_MAXIMA = 25;
+const DANIO_ATAQUE = 1;
+const VIDAS_MAXIMAS = 3;
+const PUNTOS_POR_ELIMINACION = 10;
+const CENTRO_FILA = 3;
+const CENTRO_COLUMNA = 4;
 const DURACION_DEFENSA_MS = 900;
-const PUNTOS_BALON_VALIDOS = new Set([5, 7]);
+const DIRECCIONES_ADYACENTES = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const PERSONAJES = new Set([
   "BLUE", "GREEN", "ORANGE", "PINK", "SILVER",
   "ALSILVER", "BLACKMATTER", "ERROR", "EVA", "FAST", "GOLDENBOY",
@@ -90,6 +94,7 @@ class GameState {
         color: doc.color,
         personaje: PERSONAJES.has(doc.personaje) ? doc.personaje : "BLUE",
         vida: Number.isFinite(doc.vida) ? Math.max(0, Math.min(VIDA_MAXIMA, doc.vida)) : VIDA_MAXIMA,
+        vidas: Number.isFinite(doc.vidas) ? Math.max(0, Math.min(VIDAS_MAXIMAS, doc.vidas)) : VIDAS_MAXIMAS,
         defendiendoHasta: 0,
         fila: doc.fila,
         columna: doc.columna,
@@ -120,6 +125,7 @@ class GameState {
         color: jugador.color,
         personaje: jugador.personaje,
         vida: jugador.vida,
+        vidas: jugador.vidas,
         fila: jugador.fila,
         columna: jugador.columna,
         score: jugador.score,
@@ -150,8 +156,8 @@ class GameState {
   }
 
   serializarJugador(jugador) {
-    const { id, nombre, color, personaje, fila, columna, score, vida, conectado, ultimaAccion } = jugador;
-    return { id, nombre, color, personaje, fila, columna, score, vida, conectado, ultimaAccion };
+    const { id, nombre, color, personaje, fila, columna, score, vida, vidas, conectado, ultimaAccion } = jugador;
+    return { id, nombre, color, personaje, fila, columna, score, vida, vidas, conectado, ultimaAccion };
   }
 
   serializarEstado() {
@@ -202,6 +208,7 @@ class GameState {
       color: colorAsignado,
       personaje: personajeElegido,
       vida: VIDA_MAXIMA,
+      vidas: VIDAS_MAXIMAS,
       defendiendoHasta: 0,
       fila: Math.floor(Math.random() * ROWS),
       columna: Math.floor(Math.random() * COLS),
@@ -253,37 +260,46 @@ class GameState {
     return { ok: true, jugador };
   }
 
-  atacar(jugadorId, dr, dc) {
+  // Golpea las 4 casillas colindantes a la vez: cualquier jugador conectado
+  // ahí pierde DANIO_ATAQUE de vida, salvo que esté bloqueando. Al llegar a
+  // 0 de vida pierde una de sus 3 "vidas" y reaparece en el centro con vida
+  // llena; al perder la última vida queda eliminado y el atacante gana
+  // PUNTOS_POR_ELIMINACION.
+  atacar(jugadorId) {
     const atacante = this.jugadores.get(jugadorId);
     if (!atacante || !atacante.conectado) return { ok: false };
-    if (Math.abs(dr) + Math.abs(dc) !== 1) return { ok: false };
 
-    const objetivo = [...this.jugadores.values()].find((jugador) =>
-      jugador.conectado && jugador.id !== jugadorId &&
-      jugador.fila === atacante.fila + dr && jugador.columna === atacante.columna + dc
-    );
-    if (!objetivo) return { ok: true, impacto: false };
+    const impactos = [];
+    for (const [dr, dc] of DIRECCIONES_ADYACENTES) {
+      const objetivo = [...this.jugadores.values()].find((jugador) =>
+        jugador.conectado && jugador.id !== jugadorId &&
+        jugador.fila === atacante.fila + dr && jugador.columna === atacante.columna + dc
+      );
+      if (!objetivo) continue;
 
-    const bloqueado = objetivo.defendiendoHasta > Date.now();
-    if (!bloqueado) {
-      objetivo.vida = Math.max(0, objetivo.vida - DANIO_ATAQUE);
-      this._guardarJugador(objetivo);
+      const bloqueado = objetivo.defendiendoHasta > Date.now();
+      let perdioVida = false;
+      let eliminado = false;
+      if (!bloqueado) {
+        objetivo.vida = Math.max(0, objetivo.vida - DANIO_ATAQUE);
+        if (objetivo.vida === 0) {
+          perdioVida = true;
+          objetivo.vidas = Math.max(0, objetivo.vidas - 1);
+          if (objetivo.vidas > 0) {
+            objetivo.vida = VIDA_MAXIMA;
+            objetivo.fila = CENTRO_FILA;
+            objetivo.columna = CENTRO_COLUMNA;
+          } else {
+            eliminado = true;
+            atacante.score += PUNTOS_POR_ELIMINACION;
+            this._guardarJugador(atacante);
+          }
+        }
+        this._guardarJugador(objetivo);
+      }
+      impactos.push({ objetivo, bloqueado, danio: bloqueado ? 0 : DANIO_ATAQUE, perdioVida, eliminado });
     }
-    return { ok: true, impacto: true, bloqueado, atacante, objetivo, danio: bloqueado ? 0 : DANIO_ATAQUE };
-  }
-
-  // El balón (blanco 5 pts / amarillo 7 pts) es la única forma de anotar:
-  // el cliente detecta que cruzó la línea de meta y avisa aquí cuántos
-  // puntos vale ese balón; el servidor valida el valor (solo 5 o 7 son
-  // posibles) y suma al score real, igual que hacía "marcar" antes.
-  anotarGol(jugadorId, puntos) {
-    const jugador = this.jugadores.get(jugadorId);
-    if (!jugador || !jugador.conectado) return { ok: false };
-    if (!PUNTOS_BALON_VALIDOS.has(puntos)) return { ok: false };
-    jugador.score += puntos;
-    jugador.ultimaAccion = Date.now();
-    this._guardarJugador(jugador);
-    return { ok: true, jugador };
+    return { ok: true, atacante, impactos };
   }
 
   marcar(jugadorId, celdaId, marca) {

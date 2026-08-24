@@ -3,7 +3,16 @@
    --------------------------------------------------------------------------
   La cancha se representa como una grilla exacta de 12×9. Esta versión no
    depende de Socket.IO ni de un backend: todo el estado (posición, marcas
-   X/O, color de celda, casillas visitadas) vive en memoria del navegador.
+   X/O, color de celda, casillas visitadas, combate) vive en memoria del
+   navegador.
+
+   No hay línea de gol ni balones: el jugador tiene 25 de vida y 3 vidas
+   (corazones), y `X`/`C` son las acciones de golpe y defensa (feedback
+   visual sobre el propio marcador). Al ser un prototipo de un solo jugador
+   no hay un rival real al que dañar — esa parte vive en la versión
+   multijugador (pages/cancha.html + game-server/). La segunda tarjeta de
+   "jugadores conectados" es solo un maquetado estático para visualizar esa
+   sección con más de un jugador, no un personaje con el que se combate.
    ========================================================================== */
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -69,7 +78,6 @@ const cellsGroup      = el("g", {}, sceneGroup);
 const markGroup       = el("g", {}, sceneGroup);
 const highlightGroup  = el("g", {}, sceneGroup);
 const playersGroup    = el("g", {}, sceneGroup);
-const pickupGroup     = el("g", {}, sceneGroup);
 const labelsGroup     = el("g", {}, sceneGroup);
 const movementGroup   = el("g", { class: "movement-controls" }, sceneGroup);
 
@@ -113,63 +121,6 @@ function dibujarCancha() {
     r: Math.min(centerCellWidth, centerCellHeight),
     class: "center-cell-circle",
   }, specialLinesGroup);
-  const customWhiteSegments = [
-    { row: 3, column: 10, edge: "top" },
-    { row: 3, column: 10, edge: "left" },
-    { row: 4, column: 10, edge: "left" },
-    { row: 5, column: 10, edge: "left" },
-    { row: 5, column: 10, edge: "bottom" },
-  ];
-  const mirroredWhiteSegments = customWhiteSegments.map(({ row, column, edge }) => ({
-    row,
-    column: 11 - column,
-    edge: edge === "left" ? "right" : edge === "right" ? "left" : edge,
-  }));
-  [...customWhiteSegments, ...mirroredWhiteSegments].forEach(({ row, column, edge }) => {
-    const corners = cellCorners(row, column);
-    const edgePoints = {
-      top: [corners[0], corners[1]],
-      right: [corners[1], corners[2]],
-      bottom: [corners[3], corners[2]],
-      left: [corners[0], corners[3]],
-    }[edge];
-    el("line", {
-      x1: edgePoints[0].x,
-      y1: edgePoints[0].y,
-      x2: edgePoints[1].x,
-      y2: edgePoints[1].y,
-      class: "custom-white-line",
-    }, specialLinesGroup);
-  });
-  const areaArcSpecs = [{ row: 4, column: 10, edge: "left" }];
-  const mirroredAreaArcSpecs = areaArcSpecs.map(({ row, column, edge }) => ({
-    row,
-    column: 11 - column,
-    edge: edge === "left" ? "right" : "left",
-  }));
-  [...areaArcSpecs, ...mirroredAreaArcSpecs].forEach(({ row, column, edge }) => {
-    const corners = cellCorners(row, column);
-    const [top, bottom] = edge === "left" ? [corners[0], corners[3]] : [corners[1], corners[2]];
-    const radius = (bottom.y - top.y) / 2;
-    const sweep = edge === "left" ? 0 : 1;
-    const d = `M ${top.x.toFixed(1)},${top.y.toFixed(1)} A ${radius.toFixed(1)},${radius.toFixed(1)} 0 0,${sweep} ${bottom.x.toFixed(1)},${bottom.y.toFixed(1)}`;
-    el("path", { d, class: "area-arc" }, specialLinesGroup);
-  });
-  [
-    { row: 4, column: 1 },
-    { row: 4, column: COLS - 2 },
-  ].forEach(({ row, column }, index) => {
-    const corners = cellCorners(row, column);
-    const sideStart = corners[index === 0 ? 0 : 1];
-    const sideEnd = corners[index === 0 ? 3 : 2];
-    el("line", {
-      x1: sideStart.x,
-      y1: sideStart.y,
-      x2: sideEnd.x,
-      y2: sideEnd.y,
-      class: "yellow-side-line",
-    }, specialLinesGroup);
-  });
 }
 
 /* ---------------------------------------------------------------------- */
@@ -283,47 +234,77 @@ function actualizarMarcadorJugador(r, c) {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Objetos "balón" / pickup objects (PO): ocupan una casilla cada uno.    */
-/* Al caminar el personaje sobre su casilla, el objeto se atrapa y queda  */
-/* fijo a la posición de quien lo recogió. Cada balón tiene su propia     */
-/* distancia de disparo y puntos por gol.                                 */
+/* Vida y vidas (corazones) del jugador local. Sin servidor ni otros       */
+/* jugadores reales aquí, `X` y `C` quedan como las acciones de golpe y    */
+/* defensa (feedback visual sobre el propio marcador), sin un rival al     */
+/* que dañar de verdad. La segunda tarjeta de "jugadores conectados" es    */
+/* solo un maquetado estático — no un personaje con el que se combate —    */
+/* para visualizar cómo se ve esa sección con más de un jugador, como en   */
+/* la versión multijugador real (pages/cancha.html + game-server/).        */
 /* ---------------------------------------------------------------------- */
-const pickups = [];
+const VIDA_MAXIMA = 25;
+const VIDAS_MAXIMAS = 3;
+const DURACION_DEFENSA_MS = 900;
+const DUMMY_SRC = "assets/img/pj/PERSONAJE/ERROR.png";
 
-function crearGradientesPickup() {
-  const defs = el("defs", {}, svg);
+const jugador = { vida: VIDA_MAXIMA, vidas: VIDAS_MAXIMAS, score: 0 };
+const dummy = { nombre: "Jugador de ejemplo", fila: 4, columna: 5, vida: VIDA_MAXIMA, vidas: VIDAS_MAXIMAS };
+let dummyMarker = null;
 
-  const blanco = el("radialGradient", { id: "pickup-gradient-blanco", cx: "35%", cy: "32%", r: "70%" }, defs);
-  el("stop", { offset: "0%", "stop-color": "#ffffff" }, blanco);
-  el("stop", { offset: "55%", "stop-color": "#dfe2e5" }, blanco);
-  el("stop", { offset: "100%", "stop-color": "#8a9096" }, blanco);
-
-  const amarillo = el("radialGradient", { id: "pickup-gradient-amarillo", cx: "35%", cy: "32%", r: "70%" }, defs);
-  el("stop", { offset: "0%", "stop-color": "#fffbe0" }, amarillo);
-  el("stop", { offset: "55%", "stop-color": "#f4df16" }, amarillo);
-  el("stop", { offset: "100%", "stop-color": "#a8860a" }, amarillo);
+function colorVida(vida) {
+  if (vida >= VIDA_MAXIMA * 0.6) return "#2f9e44";
+  if (vida >= VIDA_MAXIMA * 0.3) return "#f4b400";
+  return "#e63946";
 }
 
-function crearPickup({ r, c, forma, colorClase, puntosPorGol, distanciaDisparo, etiqueta }) {
-  const center = cellCenter(r, c);
-  const corners = cellCorners(r, c);
-  const radioBase = Math.min(corners[1].x - corners[0].x, corners[3].y - corners[0].y) * 0.18;
-  const clase = `pickup-object ${colorClase}`;
-  const elemento = forma === "ovalo"
-    ? el("ellipse", { cx: center.x, cy: center.y, rx: radioBase * 1.4, ry: radioBase * 0.85, class: clase, "aria-label": etiqueta }, pickupGroup)
-    : el("circle", { cx: center.x, cy: center.y, r: radioBase, class: clase, "aria-label": etiqueta }, pickupGroup);
-
-  pickups.push({ r, c, atrapado: false, enMovimiento: false, el: elemento, puntosPorGol, distanciaDisparo });
+function corazonesHtml(vidas) {
+  return Array.from({ length: VIDAS_MAXIMAS }, (_, i) =>
+    `<span class="corazon${i < vidas ? "" : " corazon-vacio"}">❤</span>`
+  ).join("");
 }
 
-function actualizarPickups() {
-  pickups.forEach((pickup) => {
-    if (pickup.atrapado) return;
-    if (active.r === pickup.r && active.c === pickup.c) {
-      pickup.atrapado = true;
-      pickup.el.classList.add("is-pickup-caught");
-    }
-  });
+function vidaBarHtml(vida) {
+  const pct = Math.max(0, Math.min(100, (vida / VIDA_MAXIMA) * 100));
+  return `<div class="vida-bar"><div class="vida-bar-fill" style="width:${pct}%;background:${colorVida(vida)}"></div></div>`;
+}
+
+function actualizarMarcadorDummy() {
+  const centro = cellCenter(dummy.fila, dummy.columna);
+  const corners = cellCorners(dummy.fila, dummy.columna);
+  const cellWidth = (corners[1].x - corners[0].x) * MARCADOR_ZOOM;
+  const cellHeight = (corners[3].y - corners[0].y) * MARCADOR_ZOOM;
+  if (!dummyMarker) {
+    dummyMarker = el("image", { class: "player-marker dummy-marker", href: DUMMY_SRC, preserveAspectRatio: "none" }, playersGroup);
+  }
+  dummyMarker.setAttribute("x", centro.x - cellWidth / 2);
+  dummyMarker.setAttribute("y", centro.y - cellHeight / 2);
+  dummyMarker.setAttribute("width", cellWidth);
+  dummyMarker.setAttribute("height", cellHeight);
+}
+
+function marcarFeedback(elemento, clase, duracion) {
+  if (!elemento) return;
+  elemento.classList.add(clase);
+  setTimeout(() => elemento.classList.remove(clase), duracion);
+}
+
+function atacar() {
+  marcarFeedback(playerMarker, "is-attacking", 350);
+}
+
+function defender() {
+  marcarFeedback(playerMarker, "is-blocking", DURACION_DEFENSA_MS);
+}
+
+function actualizarHUD() {
+  footerScoreEl.textContent = jugador.score;
+  playerBottomScoreEl.textContent = jugador.score;
+  if (footerVidaEl) footerVidaEl.innerHTML = vidaBarHtml(jugador.vida);
+  if (footerCorazonesEl) footerCorazonesEl.innerHTML = corazonesHtml(jugador.vidas);
+  if (playerVidaEl) playerVidaEl.innerHTML = vidaBarHtml(jugador.vida);
+  if (playerCorazonesEl) playerCorazonesEl.innerHTML = corazonesHtml(jugador.vidas);
+  if (dummyVidaEl) dummyVidaEl.innerHTML = vidaBarHtml(dummy.vida);
+  if (dummyCorazonesEl) dummyCorazonesEl.innerHTML = corazonesHtml(dummy.vidas);
 }
 
 
@@ -449,30 +430,14 @@ const characterPhotoCharacterEl = document.getElementById("character-photo-chara
 const playerColorChoiceEl = document.getElementById("player-color-choice");
 const top5ListEl = document.getElementById("top5-list");
 const footerScoreEl = document.getElementById("footer-score");
+const footerVidaEl = document.getElementById("footer-vida");
+const footerCorazonesEl = document.getElementById("footer-corazones");
+const playerVidaEl = document.getElementById("player-vida");
+const playerCorazonesEl = document.getElementById("player-corazones");
+const dummyVidaEl = document.getElementById("dummy-vida");
+const dummyCorazonesEl = document.getElementById("dummy-corazones");
 
 const visited = new Set();
-let golScore = 0;
-
-const UMBRALES_RECOMPENSA = [20, 30, 50, 100];
-const recompensasMostradas = new Set();
-const rewardModalEl = document.getElementById("reward-modal");
-const rewardModalSubEl = document.getElementById("reward-modal-sub");
-const rewardModalCloseEl = document.getElementById("reward-modal-close");
-rewardModalCloseEl.addEventListener("click", () => { rewardModalEl.hidden = true; });
-
-function verificarRecompensas() {
-  const umbral = UMBRALES_RECOMPENSA.find((u) => golScore >= u && !recompensasMostradas.has(u));
-  if (!umbral) return;
-  recompensasMostradas.add(umbral);
-  rewardModalSubEl.textContent = `Llegaste a ${umbral} puntos.`;
-  rewardModalEl.hidden = false;
-}
-
-function sumarGol(puntos) {
-  golScore += puntos;
-  verificarRecompensas();
-  refreshStatus();
-}
 
 function refreshStatus() {
   const n = zoneNumber(active.r, active.c);
@@ -491,101 +456,37 @@ function refreshStatus() {
   minimapZoneEl.textContent = `ZONA ${n} / ${ROWS * COLS}`;
 
   visited.add(n);
-  const puntaje = golScore;
   visitedCountEl.textContent = `${visited.size} / ${ROWS * COLS}`;
   playerBottomNameEl.innerHTML = "<span>Jugador</span><span>Equipo</span>";
-  playerBottomScoreEl.textContent = puntaje;
-  footerScoreEl.textContent = puntaje;
   playerBottomImageEl.src = PERSONAJE_SRC;
   characterPhotoImageEl.src = PERSONAJE_SRC;
   characterPhotoRegisteredEl.textContent = "Jugador Equipo";
   characterPhotoCharacterEl.textContent = "Orange";
   playerColorChoiceEl.style.backgroundColor = "#f97316";
   const MAX_JUGADORES_TABLA = 10;
-  const filasTabla = [[1, "Jugador local", puntaje]];
+  const filasTabla = [[1, "Jugador local", jugador.score]];
   for (let posicion = 2; posicion <= MAX_JUGADORES_TABLA; posicion++) {
     filasTabla.push([posicion, "—", "—"]);
   }
   top5ListEl.innerHTML = filasTabla
     .map(([position, name, score]) => `<tr><td>${position}</td><td>${name}</td><td class="score-value">${score}</td></tr>`)
     .join("");
+  actualizarHUD();
 }
 
 function applyOwnPosition(r, c) {
   active = { r, c };
   tweenHighlightTo(cellCorners(r, c));
   actualizarMarcadorJugador(r, c);
-  actualizarPickups();
-  const center = cellCenter(r, c);
-  pickups.forEach((pickup) => {
-    if (!pickup.atrapado) return;
-    pickup.el.setAttribute("cx", center.x);
-    pickup.el.setAttribute("cy", center.y);
-  });
   refreshStatus();
   refreshMovementButtons();
 }
-
-let lastDirection = { dr: 0, dc: 1 };
 
 function requestMove(dr, dc) {
   if (!dr && !dc) return;
   const nr = active.r + dr, nc = active.c + dc;
   if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return;
-  // Siempre cardinal (nunca diagonal): el eje dominante gana, así el
-  // disparo del balón (que reutiliza esta dirección) es unidireccional
-  // y preciso incluso si el movimiento vino de un clic en celda lejana.
-  lastDirection = Math.abs(dr) >= Math.abs(dc)
-    ? { dr: Math.sign(dr), dc: 0 }
-    : { dr: 0, dc: Math.sign(dc) };
   applyOwnPosition(nr, nc);
-}
-
-/* ---------------------------------------------------------------------- */
-/* Disparo de balones: X los desplaza su distancia propia en la dirección */
-/* de flecha sostenida, o en la última dirección usada, a 1 casilla por   */
-/* decisegundo. Cada balón atrapado se dispara en la misma dirección.     */
-/* ---------------------------------------------------------------------- */
-const VELOCIDAD_MS = 100; // 1 casilla por decisegundo
-const FILA_LINEA_META = 4;
-
-function cruzaLineaDeMeta(r, c) {
-  return r === FILA_LINEA_META && (c === 0 || c === COLS - 1);
-}
-
-function dispararPickup(pickup, dr, dc) {
-  if (!pickup.atrapado || pickup.enMovimiento) return;
-  if (!dr && !dc) return;
-  pickup.atrapado = false;
-  pickup.enMovimiento = true;
-  pickup.el.classList.remove("is-pickup-caught");
-
-  let pasos = 0;
-  let yaAnotoEsteDisparo = false;
-  function paso() {
-    const nr = pickup.r + dr, nc = pickup.c + dc;
-    if (pasos >= pickup.distanciaDisparo || nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) {
-      pickup.enMovimiento = false;
-      actualizarPickups();
-      return;
-    }
-    pickup.r = nr;
-    pickup.c = nc;
-    const centro = cellCenter(nr, nc);
-    pickup.el.setAttribute("cx", centro.x);
-    pickup.el.setAttribute("cy", centro.y);
-    if (!yaAnotoEsteDisparo && cruzaLineaDeMeta(nr, nc)) {
-      yaAnotoEsteDisparo = true;
-      sumarGol(pickup.puntosPorGol);
-    }
-    pasos += 1;
-    setTimeout(paso, VELOCIDAD_MS);
-  }
-  paso();
-}
-
-function dispararAtrapados(dr, dc) {
-  pickups.filter((pickup) => pickup.atrapado && !pickup.enMovimiento).forEach((pickup) => dispararPickup(pickup, dr, dc));
 }
 
 /* ---------------------------------------------------------------------- */
@@ -594,11 +495,8 @@ function dispararAtrapados(dr, dc) {
 function iniciar() {
   dibujarCancha();
   crearCeldas();
-  crearGradientesPickup();
-  crearPickup({ r: 4, c: 6, forma: "circulo", colorClase: "pickup-blanco", puntosPorGol: 5, distanciaDisparo: 2, etiqueta: "Objeto balón" });
-  crearPickup({ r: 4, c: 5, forma: "ovalo", colorClase: "pickup-amarillo", puntosPorGol: 7, distanciaDisparo: 3, etiqueta: "Objeto balón ovalado" });
   actualizarMarcadorJugador(active.r, active.c);
-  actualizarPickups();
+  actualizarMarcadorDummy();
 
   highlightPts = cellCorners(active.r, active.c);
   highlightPoly.setAttribute("points", pointsToStr(highlightPts));
@@ -609,15 +507,11 @@ function iniciar() {
   refreshMovementButtons();
 }
 
-const heldArrows = new Set();
-const ARROW_CODES = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" };
-
 document.addEventListener("keydown", (e) => {
   const moveMap = {
     ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
     KeyW: "up", KeyS: "down", KeyA: "left", KeyD: "right",
   };
-  if (ARROW_CODES[e.code]) heldArrows.add(ARROW_CODES[e.code]);
   if (moveMap[e.code]) {
     e.preventDefault();
     const { dr, dc } = DIRS[moveMap[e.code]];
@@ -627,19 +521,19 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "Escape") { gallery.hidden = true; return; }
   if (e.code === "KeyX") {
     e.preventDefault();
-    if (pickups.some((pickup) => pickup.atrapado)) {
-      const direccion = heldArrows.size ? DIRS[[...heldArrows].pop()] : lastDirection;
-      dispararAtrapados(direccion.dr, direccion.dc);
-    }
+    if (e.repeat) return;
+    atacar();
+    return;
+  }
+  if (e.code === "KeyC") {
+    e.preventDefault();
+    if (e.repeat) return;
+    defender();
     return;
   }
   if (e.code === "KeyO") { e.preventDefault(); marcarCelda(zoneNumber(active.r, active.c), "O"); return; }
   if (e.code === "Space") { e.preventDefault(); cambiarColorCelda(zoneNumber(active.r, active.c)); return; }
   if (e.code === "KeyG") { e.preventDefault(); galleryIndex = 0; actualizarGaleria(); gallery.hidden = false; return; }
-});
-
-document.addEventListener("keyup", (e) => {
-  if (ARROW_CODES[e.code]) heldArrows.delete(ARROW_CODES[e.code]);
 });
 
 const minimap = document.getElementById("minimap");

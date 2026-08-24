@@ -45,16 +45,33 @@
                 <span class="player-color-choice" id="player-color-choice" aria-hidden="true"></span>
                 <img id="player-bottom-image" src="assets/img/pj/PERSONAJE/ORANGE.png" alt="Personaje del usuario">
               </div>
-              <div class="player-bottom-name" id="player-bottom-name"><span>Jugador</span><span>Equipo</span></div>
-              <div class="player-bottom-score"><span>Score</span><strong id="player-bottom-score">0</strong></div>
+              <div class="player-bottom-info">
+                <div class="player-bottom-name" id="player-bottom-name"><span>Jugador</span><span>Equipo</span></div>
+                <div class="player-bottom-score"><span>Score</span><strong id="player-bottom-score">0</strong></div>
+                <div id="player-vida"></div>
+                <div class="corazones" id="player-corazones"></div>
+              </div>
+            </div>
+            <div class="player-bottom-card">
+              <div class="player-image-frame">
+                <img src="assets/img/pj/PERSONAJE/ERROR.png" alt="Jugador de ejemplo (maquetado visual)">
+              </div>
+              <div class="player-bottom-info">
+                <div class="player-bottom-name"><span>Jugador de ejemplo</span></div>
+                <div id="dummy-vida"></div>
+                <div class="corazones" id="dummy-corazones"></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="footer-side-card" aria-label="Score">
+      <section class="footer-side-card" aria-label="Estado del jugador">
         <span class="footer-side-label">Score</span>
         <strong id="footer-score">0</strong>
+        <span class="footer-side-label footer-vida-label">Vida</span>
+        <div id="footer-vida"></div>
+        <div class="corazones" id="footer-corazones"></div>
       </section>
 
       <aside class="score-sidebar" aria-label="Tabla de puntajes">
@@ -94,24 +111,13 @@
           <ul class="conventions-list">
             <li><span class="convention-key">↑↓←→</span><span>Moverte por la grilla</span></li>
             <li><span class="convention-key">WASD</span><span>Moverte por la grilla</span></li>
-            <li><span class="convention-key">X</span><span>Lanzar balón(es) atrapado(s)</span></li>
-            <li><span class="convention-swatch pickup-swatch pickup-swatch-amarillo"></span><span>Balón ovalado amarillo · 7 puntos</span></li>
-            <li><span class="convention-swatch pickup-swatch pickup-swatch-blanco"></span><span>Balón circular blanco · 5 puntos</span></li>
-            <li><span class="convention-swatch swatch-white-middle"></span><span>Línea de área · LA</span></li>
+            <li><span class="convention-key">X</span><span>Atacar</span></li>
+            <li><span class="convention-key">C</span><span>Bloquear un ataque</span></li>
             <li><span class="convention-key">O</span><span>Marcar O</span></li>
             <li><span class="convention-key">ESP</span><span>Pintar</span></li>
           </ul>
         </section>
       </aside>
-
-      <div class="reward-modal" id="reward-modal" hidden role="alertdialog" aria-label="Recompensa ganada">
-        <div class="reward-modal-box">
-          <span class="reward-modal-icon">🏆</span>
-          <span class="reward-modal-title">¡Has ganado una recompensa!</span>
-          <span class="reward-modal-sub" id="reward-modal-sub"></span>
-          <button type="button" class="reward-modal-close" id="reward-modal-close">Continuar</button>
-        </div>
-      </div>
 
       <div class="runtime-status" aria-hidden="true">
         <span id="zone-number">—</span>
