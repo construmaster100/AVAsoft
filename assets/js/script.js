@@ -258,6 +258,16 @@ function vidaBarHtml(vida) {
   return `<div class="vida-bar"><div class="vida-bar-fill" style="width:${pct}%;background:${colorVida(vida)}"></div></div>`;
 }
 
+const SONIDO_GOLPE_SRC = "../assets/audio/Sonido%20-%20Golpe.mp3";
+function reproducirSonidoGolpe() {
+  new Audio(SONIDO_GOLPE_SRC).play().catch(() => {});
+}
+
+const SONIDO_QUEJIDO_SRC = "../assets/audio/quejido.mp3";
+function reproducirSonidoQuejido() {
+  new Audio(SONIDO_QUEJIDO_SRC).play().catch(() => {});
+}
+
 const eliminationModalEl = document.getElementById("elimination-modal");
 const eliminationModalSubEl = document.getElementById("elimination-modal-sub");
 
@@ -270,11 +280,49 @@ function mostrarEliminacion() {
   }, 1800);
 }
 
+// Las tarjetas del roster se recrean enteras en cada renderPlayersRoster()
+// (innerHTML = ""), así que no se les puede simplemente agregar/quitar una
+// clase: guardamos qué clase está "brillando" por jugador y la reaplicamos
+// cada vez que se reconstruye la tarjeta, hasta que expire.
+const cardFlashClass = new Map(); // jugadorId -> clase CSS activa
+
 function marcarFeedback(jugadorId, clase, duracion) {
   const marcador = marcadoresJugadores.get(jugadorId);
-  if (!marcador) return;
-  marcador.classList.add(clase);
-  setTimeout(() => marcador.classList.remove(clase), duracion);
+  if (marcador) {
+    marcador.classList.add(clase);
+    setTimeout(() => marcador.classList.remove(clase), duracion);
+  }
+  cardFlashClass.set(jugadorId, clase);
+  renderPlayersRoster();
+  setTimeout(() => {
+    if (cardFlashClass.get(jugadorId) === clase) {
+      cardFlashClass.delete(jugadorId);
+      renderPlayersRoster();
+    }
+  }, duracion);
+}
+
+// El servidor solo bloquea por DURACION_DEFENSA_MS desde el último "defender"
+// (game-server/gameState.js). Para que sostener `C` bloquee mientras se
+// mantiene presionada (y no solo esa ventana fija), reenviamos "defender"
+// a un intervalo menor a esa ventana mientras la tecla siga abajo.
+let defensaIntervalId = null;
+
+function activarDefensaSostenida() {
+  CIA.defender();
+  marcarFeedback(miJugadorId, "is-blocking", DURACION_DEFENSA_MS);
+  if (defensaIntervalId) clearInterval(defensaIntervalId);
+  defensaIntervalId = setInterval(() => {
+    CIA.defender();
+    marcarFeedback(miJugadorId, "is-blocking", DURACION_DEFENSA_MS);
+  }, DURACION_DEFENSA_MS - 300);
+}
+
+function detenerDefensaSostenida() {
+  if (defensaIntervalId) {
+    clearInterval(defensaIntervalId);
+    defensaIntervalId = null;
+  }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -442,7 +490,8 @@ function renderPlayersRoster() {
     const hex = paletaPorId[j.color] || "#999";
     const esSelf = j.id === miJugadorId;
     const card = document.createElement("div");
-    card.className = "player-bottom-card" + (esSelf ? " is-self" : "");
+    const flash = cardFlashClass.get(j.id);
+    card.className = "player-bottom-card" + (esSelf ? " is-self" : "") + (flash ? " " + flash : "");
     card.innerHTML = `
       <div class="player-image-frame" style="border-color:${hex};background:${hex}">
         <span class="player-color-choice" style="background:${hex}"></span>
@@ -539,7 +588,6 @@ async function iniciar() {
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
   refreshStatus();
   refreshMovementButtons();
-  actualizarPickups();
 
   footerScoreEl.textContent = miJugador.score;
   renderPlayersRoster();
@@ -581,6 +629,7 @@ function conectarEventos() {
   CIA.socket.on("ataque_resuelto", ({ atacanteId, objetivoId, bloqueado, eliminado }) => {
     marcarFeedback(atacanteId, "is-attacking", DURACION_FEEDBACK_MS);
     marcarFeedback(objetivoId, bloqueado ? "is-blocked" : "is-hit", DURACION_FEEDBACK_MS);
+    if (!bloqueado) reproducirSonidoQuejido();
     if (objetivoId === miJugadorId && eliminado) mostrarEliminacion();
   });
 
@@ -627,16 +676,20 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "KeyX") {
     e.preventDefault();
     if (e.repeat) return;
+    reproducirSonidoGolpe();
     CIA.atacar();
     return;
   }
   if (e.code === "KeyC") {
     e.preventDefault();
     if (e.repeat) return;
-    CIA.defender();
-    marcarFeedback(miJugadorId, "is-blocking", DURACION_DEFENSA_MS);
+    activarDefensaSostenida();
     return;
   }
+});
+
+document.addEventListener("keyup", (e) => {
+  if (e.code === "KeyC") detenerDefensaSostenida();
 });
 
 document.getElementById("btn-salir").addEventListener("click", () => {

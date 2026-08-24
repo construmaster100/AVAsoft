@@ -366,6 +366,28 @@ body{
   gap:3px;
 }
 
+.player-bottom-card{ border-radius:8px; transition: box-shadow .15s ease; }
+.player-bottom-card.is-attacking{ animation: card-flash-attack .35s ease; }
+.player-bottom-card.is-hit{ animation: card-flash-hit .35s ease; }
+.player-bottom-card.is-blocked{ box-shadow: 0 0 0 2px #2f6a8f, 0 0 10px rgba(47,106,143,.7); }
+.player-bottom-card.is-blocking{
+  box-shadow: 0 0 0 2px #2f6a8f, 0 0 10px rgba(47,106,143,.7);
+  animation: card-glow-pulse .9s ease-in-out infinite;
+}
+
+@keyframes card-flash-attack{
+  0%, 100%{ background: transparent; }
+  40%{ background: rgba(244,180,0,.3); }
+}
+@keyframes card-flash-hit{
+  0%, 100%{ background: transparent; }
+  40%{ background: rgba(230,57,70,.35); }
+}
+@keyframes card-glow-pulse{
+  0%, 100%{ box-shadow: 0 0 0 2px #2f6a8f, 0 0 8px rgba(47,106,143,.6); }
+  50%{ box-shadow: 0 0 0 2px #2f6a8f, 0 0 16px rgba(47,106,143,.95); }
+}
+
 .sample-players{
   height:100%;
   display:grid;

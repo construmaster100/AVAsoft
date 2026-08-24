@@ -288,12 +288,39 @@ function marcarFeedback(elemento, clase, duracion) {
   setTimeout(() => elemento.classList.remove(clase), duracion);
 }
 
-function atacar() {
-  marcarFeedback(playerMarker, "is-attacking", 350);
+const playerCardEl = document.getElementById("player-card");
+
+const SONIDO_GOLPE_SRC = "assets/audio/Sonido%20-%20Golpe.mp3";
+function reproducirSonidoGolpe() {
+  new Audio(SONIDO_GOLPE_SRC).play().catch(() => {});
 }
+
+function atacar() {
+  reproducirSonidoGolpe();
+  marcarFeedback(playerMarker, "is-attacking", 350);
+  marcarFeedback(playerCardEl, "is-attacking", 350);
+}
+
+let defensaIntervalId = null;
 
 function defender() {
   marcarFeedback(playerMarker, "is-blocking", DURACION_DEFENSA_MS);
+  marcarFeedback(playerCardEl, "is-blocking", DURACION_DEFENSA_MS);
+}
+
+// Sostener `C` mantiene el bloqueo activo: se reenvía el feedback visual a
+// un intervalo menor a su propia duración mientras la tecla siga abajo.
+function activarDefensaSostenida() {
+  defender();
+  if (defensaIntervalId) clearInterval(defensaIntervalId);
+  defensaIntervalId = setInterval(defender, DURACION_DEFENSA_MS - 300);
+}
+
+function detenerDefensaSostenida() {
+  if (defensaIntervalId) {
+    clearInterval(defensaIntervalId);
+    defensaIntervalId = null;
+  }
 }
 
 function actualizarHUD() {
@@ -528,12 +555,16 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "KeyC") {
     e.preventDefault();
     if (e.repeat) return;
-    defender();
+    activarDefensaSostenida();
     return;
   }
   if (e.code === "KeyO") { e.preventDefault(); marcarCelda(zoneNumber(active.r, active.c), "O"); return; }
   if (e.code === "Space") { e.preventDefault(); cambiarColorCelda(zoneNumber(active.r, active.c)); return; }
   if (e.code === "KeyG") { e.preventDefault(); galleryIndex = 0; actualizarGaleria(); gallery.hidden = false; return; }
+});
+
+document.addEventListener("keyup", (e) => {
+  if (e.code === "KeyC") detenerDefensaSostenida();
 });
 
 const minimap = document.getElementById("minimap");
