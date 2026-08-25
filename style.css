@@ -129,33 +129,34 @@ body{
   overflow:hidden;
   padding:4px 12px;
   position:relative;
-  background:#ffffff;
-  border-bottom:2px solid rgba(23,34,43,.15);
+  background:#0a0a0a;
+  border-bottom:2px solid rgba(230,57,70,.45);
   background-image:
-    radial-gradient(1.5px 1.5px at 6% 30%, #f4df16 100%, transparent),
-    radial-gradient(1.5px 1.5px at 14% 70%, #f47b20 100%, transparent),
-    radial-gradient(1.5px 1.5px at 24% 20%, #f4df16 100%, transparent),
-    radial-gradient(1.5px 1.5px at 34% 65%, #f47b20 100%, transparent),
-    radial-gradient(1.5px 1.5px at 44% 35%, #f4df16 100%, transparent),
-    radial-gradient(1.5px 1.5px at 56% 75%, #f47b20 100%, transparent),
-    radial-gradient(1.5px 1.5px at 66% 25%, #f4df16 100%, transparent),
-    radial-gradient(1.5px 1.5px at 76% 60%, #f47b20 100%, transparent),
-    radial-gradient(1.5px 1.5px at 86% 30%, #f4df16 100%, transparent),
-    radial-gradient(1.5px 1.5px at 94% 70%, #f47b20 100%, transparent);
+    radial-gradient(1.5px 1.5px at 6% 30%, #8f1a1a 100%, transparent),
+    radial-gradient(1.5px 1.5px at 14% 70%, #e63946 100%, transparent),
+    radial-gradient(1.5px 1.5px at 24% 20%, #8f1a1a 100%, transparent),
+    radial-gradient(1.5px 1.5px at 34% 65%, #e63946 100%, transparent),
+    radial-gradient(1.5px 1.5px at 44% 35%, #8f1a1a 100%, transparent),
+    radial-gradient(1.5px 1.5px at 56% 75%, #e63946 100%, transparent),
+    radial-gradient(1.5px 1.5px at 66% 25%, #8f1a1a 100%, transparent),
+    radial-gradient(1.5px 1.5px at 76% 60%, #e63946 100%, transparent),
+    radial-gradient(1.5px 1.5px at 86% 30%, #8f1a1a 100%, transparent),
+    radial-gradient(1.5px 1.5px at 94% 70%, #e63946 100%, transparent);
 }
 
 .game-header h1{
   margin:0;
-  color:#123d21;
+  color:#e63946;
   font:700 clamp(1.15rem, 2.5vw, 2rem)/1 "Space Grotesk", sans-serif;
   letter-spacing:.04em;
   text-align:center;
   white-space:nowrap;
   position:relative;
   z-index:1;
+  text-shadow:0 0 10px rgba(230,57,70,.55);
 }
 
-.game-header h1 span{ color:#f47b20; }
+.game-header h1 span{ color:#ff3b30; }
 
 @media (max-width: 720px){
   .stage{ grid-template-columns: 1fr; }
@@ -250,8 +251,9 @@ body{
 }
 
 .footer-vida-label{ margin-left:10px; }
-.footer-side-card #footer-vida{ width:60px; flex:0 0 auto; }
-.footer-side-card .corazones{ font-size:.85rem; }
+.footer-side-card #footer-vida{ flex:1 1 auto; min-width:80px; }
+.footer-side-card #footer-vida .vida-bar{ width:100%; max-width:none; height:14px; }
+.footer-side-card .corazones{ font-size:1rem; flex:0 0 auto; }
 
 .score-sidebar{
   grid-area:ranking;
