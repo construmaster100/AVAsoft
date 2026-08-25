@@ -244,7 +244,8 @@ function actualizarMarcadorJugador(r, c) {
 /* ---------------------------------------------------------------------- */
 const VIDA_MAXIMA = 25;
 const VIDAS_MAXIMAS = 3;
-const DURACION_DEFENSA_MS = 900;
+const DURACION_DEFENSA_MS = 400;
+const DEFENSA_COOLDOWN_MS = 400;
 const DUMMY_SRC = "assets/img/pj/PERSONAJE/ERROR.png";
 
 const jugador = { vida: VIDA_MAXIMA, vidas: VIDAS_MAXIMAS, score: 0 };
@@ -255,6 +256,20 @@ function colorVida(vida) {
   if (vida >= VIDA_MAXIMA * 0.6) return "#2f9e44";
   if (vida >= VIDA_MAXIMA * 0.3) return "#f4b400";
   return "#e63946";
+}
+
+// El footer entero (desde la sidebar de conectados hasta el sidebar de
+// puntajes) usa este color como fondo — más oscuro/saturado que
+// colorVida() (pensado para una barra fina) porque acá el texto blanco
+// tiene que seguir siendo legible sobre toda la superficie.
+function colorVidaFondo(vida) {
+  if (vida >= VIDA_MAXIMA * 0.6) return "#1f7a3d";
+  if (vida >= VIDA_MAXIMA * 0.3) return "#8a6d13";
+  return "#9c2b2b";
+}
+
+function actualizarColorFooterVida(vida) {
+  document.documentElement.style.setProperty("--vida-color", colorVidaFondo(vida));
 }
 
 function corazonesHtml(vidas) {
@@ -282,13 +297,9 @@ function actualizarMarcadorDummy() {
   dummyMarker.setAttribute("height", cellHeight);
 }
 
-// Con `C` sostenido, activarDefensaSostenida reenvía este mismo feedback
-// cada 600ms con una ventana de 900ms: sin este token, el setTimeout de la
-// primera llamada apagaba el resplandor a los 900ms aunque la tecla
-// siguiera abajo y ya hubiera una llamada más nueva sosteniéndolo, causando
-// un parpadeo de ~300ms cada ciclo. Cada llamada marca la suya (por
-// elemento+clase, para no chocar si atacar y defender coinciden) como la
-// "vigente"; solo su propio timeout puede apagar esa clase.
+// Token por elemento+clase (no solo un setTimeout directo) para que, si
+// atacar y defender coinciden en el mismo elemento, cada clase se apague
+// por su propia cuenta sin que una pise el timeout de la otra.
 const feedbackTokens = new WeakMap(); // elemento -> Map<clase, token>
 function marcarFeedback(elemento, clase, duracion) {
   if (!elemento) return;
@@ -318,26 +329,19 @@ function atacar() {
   marcarFeedback(playerCardEl, "is-attacking", 350);
 }
 
-let defensaIntervalId = null;
-
 function defender() {
   marcarFeedback(playerMarker, "is-blocking", DURACION_DEFENSA_MS);
   marcarFeedback(playerCardEl, "is-blocking", DURACION_DEFENSA_MS);
 }
 
-// Sostener `C` mantiene el bloqueo activo: se reenvía el feedback visual a
-// un intervalo menor a su propia duración mientras la tecla siga abajo.
-function activarDefensaSostenida() {
-  defender();
-  if (defensaIntervalId) clearInterval(defensaIntervalId);
-  defensaIntervalId = setInterval(defender, DURACION_DEFENSA_MS - 300);
-}
+// Un golpe de C bloquea por DURACION_DEFENSA_MS y despues queda en cooldown
+// por DEFENSA_COOLDOWN_MS antes de poder volver a activarse.
+let defensaDisponibleEn = 0;
 
-function detenerDefensaSostenida() {
-  if (defensaIntervalId) {
-    clearInterval(defensaIntervalId);
-    defensaIntervalId = null;
-  }
+function activarDefensa() {
+  if (Date.now() < defensaDisponibleEn) return;
+  defender();
+  defensaDisponibleEn = Date.now() + DURACION_DEFENSA_MS + DEFENSA_COOLDOWN_MS;
 }
 
 function actualizarHUD() {
@@ -349,6 +353,7 @@ function actualizarHUD() {
   if (playerCorazonesEl) playerCorazonesEl.innerHTML = corazonesHtml(jugador.vidas);
   if (dummyVidaEl) dummyVidaEl.innerHTML = vidaBarHtml(dummy.vida);
   if (dummyCorazonesEl) dummyCorazonesEl.innerHTML = corazonesHtml(dummy.vidas);
+  actualizarColorFooterVida(jugador.vida);
 }
 
 
@@ -572,16 +577,12 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "KeyC") {
     e.preventDefault();
     if (e.repeat) return;
-    activarDefensaSostenida();
+    activarDefensa();
     return;
   }
   if (e.code === "KeyO") { e.preventDefault(); marcarCelda(zoneNumber(active.r, active.c), "O"); return; }
   if (e.code === "Space") { e.preventDefault(); cambiarColorCelda(zoneNumber(active.r, active.c)); return; }
   if (e.code === "KeyG") { e.preventDefault(); galleryIndex = 0; actualizarGaleria(); gallery.hidden = false; return; }
-});
-
-document.addEventListener("keyup", (e) => {
-  if (e.code === "KeyC") detenerDefensaSostenida();
 });
 
 const minimap = document.getElementById("minimap");

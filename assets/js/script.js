@@ -238,13 +238,32 @@ function actualizarMarcadorJugador(jugador) {
 /* ---------------------------------------------------------------------- */
 const VIDA_MAXIMA = 25;
 const VIDAS_MAXIMAS = 3;
-const DURACION_DEFENSA_MS = 900; // debe coincidir con game-server/gameState.js
+// DURACION_DEFENSA_MS y DEFENSA_COOLDOWN_MS deben coincidir con
+// game-server/gameState.js: el servidor es quien realmente hace cumplir el
+// cooldown (rechaza "defender" si llega antes de tiempo); estos valores acá
+// solo sirven para que el feedback visual/local no se adelante a eso.
+const DURACION_DEFENSA_MS = 400;
+const DEFENSA_COOLDOWN_MS = 400;
 const DURACION_FEEDBACK_MS = 350;
 
 function colorVida(vida) {
   if (vida >= VIDA_MAXIMA * 0.6) return "#2f9e44";
   if (vida >= VIDA_MAXIMA * 0.3) return "#f4b400";
   return "#e63946";
+}
+
+// El footer entero (desde la sidebar de conectados hasta el sidebar de
+// puntajes) usa este color como fondo — más oscuro/saturado que
+// colorVida() (pensado para una barra fina) porque acá el texto blanco
+// tiene que seguir siendo legible sobre toda la superficie.
+function colorVidaFondo(vida) {
+  if (vida >= VIDA_MAXIMA * 0.6) return "#1f7a3d";
+  if (vida >= VIDA_MAXIMA * 0.3) return "#8a6d13";
+  return "#9c2b2b";
+}
+
+function actualizarColorFooterVida(vida) {
+  document.documentElement.style.setProperty("--vida-color", colorVidaFondo(vida));
 }
 
 function corazonesHtml(vidas) {
@@ -286,13 +305,11 @@ function mostrarEliminacion() {
 // cada vez que se reconstruye la tarjeta, hasta que expire.
 //
 // Se guarda junto con un token único por llamada (no solo el nombre de la
-// clase) porque, con `C` sostenido, activarDefensaSostenida reenvía este
-// mismo feedback —misma clase "is-blocking"— cada 600ms con una ventana de
-// 900ms: comparar solo el nombre de la clase no distingue la llamada vieja
-// de la nueva (ambas guardan el mismo string), así que el timeout de la
-// primera llamada igual apagaba el resplandor a los 900ms aunque la tecla
-// siguiera abajo. Comparando el token, solo el timeout de la llamada más
-// reciente puede apagar la clase.
+// clase) para que, si dos llamadas para el mismo jugador se superponen
+// (por ejemplo el feedback local al presionar C y el "jugador_defendiendo"
+// que confirma el servidor, casi al mismo tiempo), solo el timeout de la
+// llamada más reciente pueda apagar la clase — comparar solo el nombre no
+// alcanza porque ambas guardan el mismo string ("is-blocking").
 const cardFlash = new Map(); // jugadorId -> { clase, token }
 
 function marcarFeedback(jugadorId, clase, duracion) {
@@ -311,27 +328,18 @@ function marcarFeedback(jugadorId, clase, duracion) {
   }, duracion);
 }
 
-// El servidor solo bloquea por DURACION_DEFENSA_MS desde el último "defender"
-// (game-server/gameState.js). Para que sostener `C` bloquee mientras se
-// mantiene presionada (y no solo esa ventana fija), reenviamos "defender"
-// a un intervalo menor a esa ventana mientras la tecla siga abajo.
-let defensaIntervalId = null;
+// Un golpe de C bloquea por DURACION_DEFENSA_MS y despues queda en cooldown
+// por DEFENSA_COOLDOWN_MS: no se puede volver a activar hasta que termine
+// esa espera (el servidor rechaza "defender" si llega antes de tiempo; este
+// timestamp local solo evita mandar el pedido de antemano y mantiene el
+// feedback visual sincronizado con esa ventana).
+let defensaDisponibleEn = 0;
 
-function activarDefensaSostenida() {
+function activarDefensa() {
+  if (Date.now() < defensaDisponibleEn) return;
   CIA.defender();
   marcarFeedback(miJugadorId, "is-blocking", DURACION_DEFENSA_MS);
-  if (defensaIntervalId) clearInterval(defensaIntervalId);
-  defensaIntervalId = setInterval(() => {
-    CIA.defender();
-    marcarFeedback(miJugadorId, "is-blocking", DURACION_DEFENSA_MS);
-  }, DURACION_DEFENSA_MS - 300);
-}
-
-function detenerDefensaSostenida() {
-  if (defensaIntervalId) {
-    clearInterval(defensaIntervalId);
-    defensaIntervalId = null;
-  }
+  defensaDisponibleEn = Date.now() + DURACION_DEFENSA_MS + DEFENSA_COOLDOWN_MS;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -521,6 +529,7 @@ function renderPlayersRoster() {
     if (yo) {
       footerVidaEl.innerHTML = vidaBarHtml(yo.vida);
       footerCorazonesEl.innerHTML = corazonesHtml(yo.vidas);
+      actualizarColorFooterVida(yo.vida);
     }
   }
 }
@@ -696,13 +705,9 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "KeyC") {
     e.preventDefault();
     if (e.repeat) return;
-    activarDefensaSostenida();
+    activarDefensa();
     return;
   }
-});
-
-document.addEventListener("keyup", (e) => {
-  if (e.code === "KeyC") detenerDefensaSostenida();
 });
 
 document.getElementById("btn-salir").addEventListener("click", () => {

@@ -17,7 +17,8 @@ const VIDAS_MAXIMAS = 3;
 const PUNTOS_POR_ELIMINACION = 10;
 const CENTRO_FILA = 3;
 const CENTRO_COLUMNA = 4;
-const DURACION_DEFENSA_MS = 900;
+const DURACION_DEFENSA_MS = 400;
+const DEFENSA_COOLDOWN_MS = 400;
 const DIRECCIONES_ADYACENTES = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const PERSONAJES = new Set([
   "BLUE", "GREEN", "ORANGE", "PINK", "SILVER",
@@ -96,6 +97,7 @@ class GameState {
         vida: Number.isFinite(doc.vida) ? Math.max(0, Math.min(VIDA_MAXIMA, doc.vida)) : VIDA_MAXIMA,
         vidas: Number.isFinite(doc.vidas) ? Math.max(0, Math.min(VIDAS_MAXIMAS, doc.vidas)) : VIDAS_MAXIMAS,
         defendiendoHasta: 0,
+        defensaDisponibleDesde: 0,
         fila: doc.fila,
         columna: doc.columna,
         score: doc.score,
@@ -155,6 +157,38 @@ class GameState {
     return [...this.jugadores.values()].filter((j) => j.conectado).length;
   }
 
+  // Los jugadores nunca pueden compartir casilla: se usa antes de mover,
+  // aparecer por primera vez o reaparecer tras perder una vida.
+  celdaOcupada(fila, columna, excluirJugadorId) {
+    for (const jugador of this.jugadores.values()) {
+      if (jugador.id === excluirJugadorId) continue;
+      if (jugador.conectado && jugador.fila === fila && jugador.columna === columna) return true;
+    }
+    return false;
+  }
+
+  // Busca la casilla libre más cercana a (filaBase, columnaBase) expandiendo
+  // en anillos por distancia Manhattan — se usa para el spawn inicial y el
+  // respawn en el centro tras perder una vida, para no aparecer encima de
+  // otro jugador ya parado ahí.
+  buscarCeldaLibre(filaBase, columnaBase, excluirJugadorId) {
+    if (!this.celdaOcupada(filaBase, columnaBase, excluirJugadorId)) {
+      return { fila: filaBase, columna: columnaBase };
+    }
+    for (let radio = 1; radio <= ROWS + COLS; radio++) {
+      for (let dr = -radio; dr <= radio; dr++) {
+        const dc = radio - Math.abs(dr);
+        const columnasCandidatas = dc === 0 ? [columnaBase] : [columnaBase - dc, columnaBase + dc];
+        for (const columna of columnasCandidatas) {
+          const fila = filaBase + dr;
+          if (fila < 0 || fila >= ROWS || columna < 0 || columna >= COLS) continue;
+          if (!this.celdaOcupada(fila, columna, excluirJugadorId)) return { fila, columna };
+        }
+      }
+    }
+    return { fila: filaBase, columna: columnaBase }; // tablero lleno: caso improbable (max 20 jugadores en 70 celdas)
+  }
+
   serializarJugador(jugador) {
     const { id, nombre, color, personaje, fila, columna, score, vida, vidas, conectado, ultimaAccion } = jugador;
     return { id, nombre, color, personaje, fila, columna, score, vida, vidas, conectado, ultimaAccion };
@@ -202,6 +236,11 @@ class GameState {
       return { ok: false, motivo: `La sala está llena (máximo ${MAX_JUGADORES} jugadores).` };
     }
 
+    const posicionInicial = this.buscarCeldaLibre(
+      Math.floor(Math.random() * ROWS),
+      Math.floor(Math.random() * COLS),
+      null
+    );
     const jugador = {
       id: crypto.randomUUID(),
       nombre: nombreLimpio,
@@ -210,8 +249,9 @@ class GameState {
       vida: VIDA_MAXIMA,
       vidas: VIDAS_MAXIMAS,
       defendiendoHasta: 0,
-      fila: Math.floor(Math.random() * ROWS),
-      columna: Math.floor(Math.random() * COLS),
+      defensaDisponibleDesde: 0,
+      fila: posicionInicial.fila,
+      columna: posicionInicial.columna,
       score: 0,
       conectado: true,
       socketId,
@@ -247,16 +287,24 @@ class GameState {
     const nr = jugador.fila + dr;
     const nc = jugador.columna + dc;
     if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return { ok: false };
+    if (this.celdaOcupada(nr, nc, jugadorId)) return { ok: false };
     jugador.fila = nr;
     jugador.columna = nc;
     jugador.ultimaAccion = Date.now();
     return { ok: true, jugador };
   }
 
+  // El bloqueo dura DURACION_DEFENSA_MS y luego entra en cooldown por
+  // DEFENSA_COOLDOWN_MS antes de poder volver a activarse — sin este
+  // chequeo del lado del servidor, un cliente podría reenviar "defender"
+  // en bucle y quedar bloqueando de forma permanente.
   defender(jugadorId) {
     const jugador = this.jugadores.get(jugadorId);
     if (!jugador || !jugador.conectado) return { ok: false };
-    jugador.defendiendoHasta = Date.now() + DURACION_DEFENSA_MS;
+    const ahora = Date.now();
+    if (ahora < jugador.defensaDisponibleDesde) return { ok: false };
+    jugador.defendiendoHasta = ahora + DURACION_DEFENSA_MS;
+    jugador.defensaDisponibleDesde = ahora + DURACION_DEFENSA_MS + DEFENSA_COOLDOWN_MS;
     return { ok: true, jugador };
   }
 
@@ -287,8 +335,9 @@ class GameState {
           objetivo.vidas = Math.max(0, objetivo.vidas - 1);
           if (objetivo.vidas > 0) {
             objetivo.vida = VIDA_MAXIMA;
-            objetivo.fila = CENTRO_FILA;
-            objetivo.columna = CENTRO_COLUMNA;
+            const libre = this.buscarCeldaLibre(CENTRO_FILA, CENTRO_COLUMNA, objetivo.id);
+            objetivo.fila = libre.fila;
+            objetivo.columna = libre.columna;
           } else {
             eliminado = true;
             atacante.score += PUNTOS_POR_ELIMINACION;
