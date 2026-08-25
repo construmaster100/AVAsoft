@@ -284,19 +284,28 @@ function mostrarEliminacion() {
 // (innerHTML = ""), así que no se les puede simplemente agregar/quitar una
 // clase: guardamos qué clase está "brillando" por jugador y la reaplicamos
 // cada vez que se reconstruye la tarjeta, hasta que expire.
-const cardFlashClass = new Map(); // jugadorId -> clase CSS activa
+//
+// Se guarda junto con un token único por llamada (no solo el nombre de la
+// clase) porque, con `C` sostenido, activarDefensaSostenida reenvía este
+// mismo feedback —misma clase "is-blocking"— cada 600ms con una ventana de
+// 900ms: comparar solo el nombre de la clase no distingue la llamada vieja
+// de la nueva (ambas guardan el mismo string), así que el timeout de la
+// primera llamada igual apagaba el resplandor a los 900ms aunque la tecla
+// siguiera abajo. Comparando el token, solo el timeout de la llamada más
+// reciente puede apagar la clase.
+const cardFlash = new Map(); // jugadorId -> { clase, token }
 
 function marcarFeedback(jugadorId, clase, duracion) {
   const marcador = marcadoresJugadores.get(jugadorId);
-  if (marcador) {
-    marcador.classList.add(clase);
-    setTimeout(() => marcador.classList.remove(clase), duracion);
-  }
-  cardFlashClass.set(jugadorId, clase);
+  if (marcador) marcador.classList.add(clase);
+  const token = Symbol();
+  cardFlash.set(jugadorId, { clase, token });
   renderPlayersRoster();
   setTimeout(() => {
-    if (cardFlashClass.get(jugadorId) === clase) {
-      cardFlashClass.delete(jugadorId);
+    const actual = cardFlash.get(jugadorId);
+    if (actual && actual.token === token) {
+      cardFlash.delete(jugadorId);
+      if (marcador) marcador.classList.remove(clase);
       renderPlayersRoster();
     }
   }, duracion);
@@ -490,8 +499,8 @@ function renderPlayersRoster() {
     const hex = paletaPorId[j.color] || "#999";
     const esSelf = j.id === miJugadorId;
     const card = document.createElement("div");
-    const flash = cardFlashClass.get(j.id);
-    card.className = "player-bottom-card" + (esSelf ? " is-self" : "") + (flash ? " " + flash : "");
+    const flash = cardFlash.get(j.id);
+    card.className = "player-bottom-card" + (esSelf ? " is-self" : "") + (flash ? " " + flash.clase : "");
     card.innerHTML = `
       <div class="player-image-frame" style="border-color:${hex};background:${hex}">
         <span class="player-color-choice" style="background:${hex}"></span>
@@ -677,6 +686,10 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     if (e.repeat) return;
     reproducirSonidoGolpe();
+    // Feedback local inmediato: "ataque_resuelto" solo llega del servidor si
+    // el golpe conecta con alguien adyacente, así que sin esto no había
+    // ningún resplandor al presionar X si no había rival al lado.
+    marcarFeedback(miJugadorId, "is-attacking", DURACION_FEEDBACK_MS);
     CIA.atacar();
     return;
   }

@@ -282,10 +282,27 @@ function actualizarMarcadorDummy() {
   dummyMarker.setAttribute("height", cellHeight);
 }
 
+// Con `C` sostenido, activarDefensaSostenida reenvía este mismo feedback
+// cada 600ms con una ventana de 900ms: sin este token, el setTimeout de la
+// primera llamada apagaba el resplandor a los 900ms aunque la tecla
+// siguiera abajo y ya hubiera una llamada más nueva sosteniéndolo, causando
+// un parpadeo de ~300ms cada ciclo. Cada llamada marca la suya (por
+// elemento+clase, para no chocar si atacar y defender coinciden) como la
+// "vigente"; solo su propio timeout puede apagar esa clase.
+const feedbackTokens = new WeakMap(); // elemento -> Map<clase, token>
 function marcarFeedback(elemento, clase, duracion) {
   if (!elemento) return;
   elemento.classList.add(clase);
-  setTimeout(() => elemento.classList.remove(clase), duracion);
+  if (!feedbackTokens.has(elemento)) feedbackTokens.set(elemento, new Map());
+  const tokens = feedbackTokens.get(elemento);
+  const token = Symbol();
+  tokens.set(clase, token);
+  setTimeout(() => {
+    if (tokens.get(clase) === token) {
+      elemento.classList.remove(clase);
+      tokens.delete(clase);
+    }
+  }, duracion);
 }
 
 const playerCardEl = document.getElementById("player-card");
