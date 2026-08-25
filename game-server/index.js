@@ -18,14 +18,21 @@ app.use("/assets", express.static(path.join(ROOT, "assets")));
 app.use("/pages", express.static(path.join(ROOT, "pages")));
 app.get(["/", "/index.html"], (req, res) => res.sendFile(path.join(ROOT, "index.html")));
 
+// Prototipo local standalone (sin servidor, un solo jugador) que vive en la
+// raiz del repo. No se sirve como estatico completo de ROOT (expondria
+// package.json, .env, etc.) — solo estos tres archivos puntuales.
+app.get("/cancha.html", (req, res) => res.sendFile(path.join(ROOT, "cancha.html")));
+app.get("/script.js", (req, res) => res.sendFile(path.join(ROOT, "script.js")));
+app.get("/style.css", (req, res) => res.sendFile(path.join(ROOT, "style.css")));
+
 io.on("connection", (socket) => {
   socket.on("observar", (_payload, cb) => {
     socket.join("sala-1");
     if (typeof cb === "function") cb(estado.serializarEstado());
   });
 
-  socket.on("unirse", ({ nombre, color, jugadorId } = {}, cb) => {
-    const resultado = estado.unirse({ nombre, color, jugadorId, socketId: socket.id });
+  socket.on("unirse", ({ nombre, color, personaje, jugadorId } = {}, cb) => {
+    const resultado = estado.unirse({ nombre, color, personaje, jugadorId, socketId: socket.id });
     if (!resultado.ok) {
       if (typeof cb === "function") cb({ ok: false, motivo: resultado.motivo });
       return;
@@ -53,6 +60,33 @@ io.on("connection", (socket) => {
       id: resultado.jugador.id,
       fila: resultado.jugador.fila,
       columna: resultado.jugador.columna,
+    });
+  });
+
+  socket.on("defender", () => {
+    const resultado = estado.defender(socket.data.jugadorId);
+    if (resultado.ok) io.to("sala-1").emit("jugador_defendiendo", { id: resultado.jugador.id });
+  });
+
+  socket.on("atacar", () => {
+    const resultado = estado.atacar(socket.data.jugadorId);
+    if (!resultado.ok || !resultado.impactos.length) return;
+    resultado.impactos.forEach((impacto) => {
+      io.to("sala-1").emit("ataque_resuelto", {
+        atacanteId: resultado.atacante.id,
+        objetivoId: impacto.objetivo.id,
+        bloqueado: impacto.bloqueado,
+        danio: impacto.danio,
+        vida: impacto.objetivo.vida,
+        vidas: impacto.objetivo.vidas,
+        perdioVida: impacto.perdioVida,
+        eliminado: impacto.eliminado,
+      });
+      io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(impacto.objetivo));
+      if (impacto.eliminado) {
+        io.to("sala-1").emit("jugador_actualizado", estado.serializarJugador(resultado.atacante));
+        io.to("sala-1").emit("top5_actualizado", estado.top5());
+      }
     });
   });
 

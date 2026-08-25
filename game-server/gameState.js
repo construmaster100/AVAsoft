@@ -11,6 +11,31 @@ const PUNTOS_POR_CELDA = 3;
 const PENALIZACION_PUNTOS = 2;
 const TOP_N = 15;
 const MS_ANTES_DE_LIBERAR_COLOR = 8000;
+const VIDA_MAXIMA = 25;
+const DANIO_ATAQUE = 1;
+const VIDAS_MAXIMAS = 3;
+const PUNTOS_POR_ELIMINACION = 10;
+const CENTRO_FILA = 3;
+const CENTRO_COLUMNA = 4;
+const DURACION_DEFENSA_MS = 900;
+const DIRECCIONES_ADYACENTES = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+const PERSONAJES = new Set([
+  "BLUE", "GREEN", "ORANGE", "PINK", "SILVER",
+  "ALSILVER", "BLACKMATTER", "ERROR", "EVA", "FAST", "GOLDENBOY",
+]);
+const COLOR_POR_PERSONAJE = {
+  BLUE: "azul",
+  GREEN: "verde",
+  ORANGE: "naranja",
+  PINK: "rosa",
+  SILVER: "negro",
+  ALSILVER: "blanco",
+  BLACKMATTER: "morado",
+  ERROR: "rojo",
+  EVA: "cian",
+  FAST: "amarillo",
+  GOLDENBOY: "dorado",
+};
 
 const PALETA = [
   { id: "rojo", nombre: "Rojo", hex: "#e63946" },
@@ -23,6 +48,7 @@ const PALETA = [
   { id: "cian", nombre: "Cian", hex: "#17a2b8" },
   { id: "blanco", nombre: "Blanco", hex: "#f5f5f5" },
   { id: "negro", nombre: "Negro", hex: "#1c1c1c" },
+  { id: "dorado", nombre: "Dorado", hex: "#d4af37" },
 ];
 const PALETA_IDS = new Set(PALETA.map((c) => c.id));
 
@@ -66,6 +92,10 @@ class GameState {
         id: doc.id,
         nombre: doc.nombre,
         color: doc.color,
+        personaje: PERSONAJES.has(doc.personaje) ? doc.personaje : "BLUE",
+        vida: Number.isFinite(doc.vida) ? Math.max(0, Math.min(VIDA_MAXIMA, doc.vida)) : VIDA_MAXIMA,
+        vidas: Number.isFinite(doc.vidas) ? Math.max(0, Math.min(VIDAS_MAXIMAS, doc.vidas)) : VIDAS_MAXIMAS,
+        defendiendoHasta: 0,
         fila: doc.fila,
         columna: doc.columna,
         score: doc.score,
@@ -93,6 +123,9 @@ class GameState {
         id: jugador.id,
         nombre: jugador.nombre,
         color: jugador.color,
+        personaje: jugador.personaje,
+        vida: jugador.vida,
+        vidas: jugador.vidas,
         fila: jugador.fila,
         columna: jugador.columna,
         score: jugador.score,
@@ -123,8 +156,8 @@ class GameState {
   }
 
   serializarJugador(jugador) {
-    const { id, nombre, color, fila, columna, score, conectado, ultimaAccion } = jugador;
-    return { id, nombre, color, fila, columna, score, conectado, ultimaAccion };
+    const { id, nombre, color, personaje, fila, columna, score, vida, vidas, conectado, ultimaAccion } = jugador;
+    return { id, nombre, color, personaje, fila, columna, score, vida, vidas, conectado, ultimaAccion };
   }
 
   serializarEstado() {
@@ -144,7 +177,9 @@ class GameState {
       .map((j) => ({ id: j.id, nombre: j.nombre, color: j.color, score: j.score }));
   }
 
-  unirse({ nombre, color, jugadorId, socketId }) {
+  unirse({ nombre, color, personaje, jugadorId, socketId }) {
+    const personajeElegido = PERSONAJES.has(personaje) ? personaje : "BLUE";
+    const colorAsignado = COLOR_POR_PERSONAJE[personajeElegido];
     if (jugadorId && this.jugadores.has(jugadorId)) {
       const jugador = this.jugadores.get(jugadorId);
       const timer = this.timersDesconexion.get(jugadorId);
@@ -154,14 +189,15 @@ class GameState {
       }
       jugador.conectado = true;
       jugador.socketId = socketId;
+      jugador.personaje = personajeElegido;
+      jugador.color = colorAsignado;
       jugador.ultimaAccion = Date.now();
       return { ok: true, jugador, esNuevo: false };
     }
 
     const nombreLimpio = String(nombre || "").trim().slice(0, 20);
     if (!nombreLimpio) return { ok: false, motivo: "Ingresa un nombre de usuario." };
-    if (!PALETA_IDS.has(color)) return { ok: false, motivo: "Elige un color válido." };
-    if (this.colorEnUso(color)) return { ok: false, motivo: "Ese color ya está en uso por otro jugador conectado." };
+    if (this.colorEnUso(colorAsignado)) return { ok: false, motivo: "Ese personaje ya está en uso por otro jugador conectado." };
     if (this.jugadoresConectados() >= MAX_JUGADORES) {
       return { ok: false, motivo: `La sala está llena (máximo ${MAX_JUGADORES} jugadores).` };
     }
@@ -169,7 +205,11 @@ class GameState {
     const jugador = {
       id: crypto.randomUUID(),
       nombre: nombreLimpio,
-      color,
+      color: colorAsignado,
+      personaje: personajeElegido,
+      vida: VIDA_MAXIMA,
+      vidas: VIDAS_MAXIMAS,
+      defendiendoHasta: 0,
       fila: Math.floor(Math.random() * ROWS),
       columna: Math.floor(Math.random() * COLS),
       score: 0,
@@ -211,6 +251,55 @@ class GameState {
     jugador.columna = nc;
     jugador.ultimaAccion = Date.now();
     return { ok: true, jugador };
+  }
+
+  defender(jugadorId) {
+    const jugador = this.jugadores.get(jugadorId);
+    if (!jugador || !jugador.conectado) return { ok: false };
+    jugador.defendiendoHasta = Date.now() + DURACION_DEFENSA_MS;
+    return { ok: true, jugador };
+  }
+
+  // Golpea las 4 casillas colindantes a la vez: cualquier jugador conectado
+  // ahí pierde DANIO_ATAQUE de vida, salvo que esté bloqueando. Al llegar a
+  // 0 de vida pierde una de sus 3 "vidas" y reaparece en el centro con vida
+  // llena; al perder la última vida queda eliminado y el atacante gana
+  // PUNTOS_POR_ELIMINACION.
+  atacar(jugadorId) {
+    const atacante = this.jugadores.get(jugadorId);
+    if (!atacante || !atacante.conectado) return { ok: false };
+
+    const impactos = [];
+    for (const [dr, dc] of DIRECCIONES_ADYACENTES) {
+      const objetivo = [...this.jugadores.values()].find((jugador) =>
+        jugador.conectado && jugador.id !== jugadorId &&
+        jugador.fila === atacante.fila + dr && jugador.columna === atacante.columna + dc
+      );
+      if (!objetivo) continue;
+
+      const bloqueado = objetivo.defendiendoHasta > Date.now();
+      let perdioVida = false;
+      let eliminado = false;
+      if (!bloqueado) {
+        objetivo.vida = Math.max(0, objetivo.vida - DANIO_ATAQUE);
+        if (objetivo.vida === 0) {
+          perdioVida = true;
+          objetivo.vidas = Math.max(0, objetivo.vidas - 1);
+          if (objetivo.vidas > 0) {
+            objetivo.vida = VIDA_MAXIMA;
+            objetivo.fila = CENTRO_FILA;
+            objetivo.columna = CENTRO_COLUMNA;
+          } else {
+            eliminado = true;
+            atacante.score += PUNTOS_POR_ELIMINACION;
+            this._guardarJugador(atacante);
+          }
+        }
+        this._guardarJugador(objetivo);
+      }
+      impactos.push({ objetivo, bloqueado, danio: bloqueado ? 0 : DANIO_ATAQUE, perdioVida, eliminado });
+    }
+    return { ok: true, atacante, impactos };
   }
 
   marcar(jugadorId, celdaId, marca) {

@@ -3,23 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arena de Combate a Muerte</title>
+<title>Cancha CR7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/cancha.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="stage" id="main-content">
       <header class="game-header">
-        <h1>ARENA DE COMBATE <span>A MUERTE</span></h1>
-        <button type="button" class="logout-btn" id="btn-salir" title="Salir de la cancha">Salir</button>
+        <h1>CANCHA SINCRÓNICA INTERACTIVA <span>LA GUACHA</span></h1>
       </header>
 
       <div class="field-frame" id="field-frame">
         <svg id="pitch-svg" viewBox="0 0 1672 941" preserveAspectRatio="none" role="img"
-             aria-label="Cancha de fútbol con grilla interactiva de 7 filas por 10 columnas, con marco decorativo">
-          <!-- La foto de fondo, la grilla y las celdas se montan por JavaScript. -->
+             aria-label="Cancha de fútbol con grilla alfanumérica de 9 filas por 12 columnas">
+          <!-- La cancha, la grilla y las capas interactivas se montan por JavaScript. -->
         </svg>
 
         <section class="image-gallery" id="image-gallery" hidden aria-label="Imagen de la casilla seleccionada">
@@ -38,23 +37,29 @@
 
       <section class="bottom-dashboard" aria-label="Jugadores conectados">
         <div class="score-panel connected-panel">
-          <div class="sample-players" id="sample-players"></div>
+          <div class="sample-players">
+            <div class="player-bottom-card">
+              <div class="player-image-frame player-orange">
+                <span class="player-color-choice" id="player-color-choice" aria-hidden="true"></span>
+                <img id="player-bottom-image" src="../assets/img/pj/PERSONAJE/ORANGE.png" alt="Personaje del usuario">
+              </div>
+              <div class="player-bottom-name" id="player-bottom-name"><span>Jugador</span><span>Equipo</span></div>
+              <div class="player-bottom-score"><span>Score</span><strong id="player-bottom-score">0</strong></div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="footer-side-card" aria-label="Estado del jugador">
+      <section class="footer-side-card" aria-label="Score">
         <span class="footer-side-label">Score</span>
         <strong id="footer-score">0</strong>
-        <span class="footer-side-label footer-vida-label">Vida</span>
-        <div id="footer-vida"></div>
-        <div class="corazones" id="footer-corazones"></div>
       </section>
 
       <aside class="score-sidebar" aria-label="Tabla de puntajes">
         <div class="score-panel ranking-panel">
           <div class="dashboard-heading">
             <span>Tabla de puntajes</span>
-            <span>TOP 15</span>
+            <span>TOP 10</span>
           </div>
           <div class="table-scroll">
             <table class="score-table">
@@ -67,16 +72,16 @@
         </div>
         <section class="character-photo-panel" aria-label="Foto del personaje">
           <div class="character-photo-col">
-            <img id="character-photo-image" src="" alt="Personaje del usuario">
+            <img id="character-photo-image" src="../assets/img/pj/PERSONAJE/ORANGE.png" alt="Personaje del usuario">
           </div>
           <div class="character-photo-col character-photo-info">
             <div class="character-photo-row">
               <span class="character-photo-label">Jugador</span>
-              <span class="character-photo-value" id="character-photo-registered">—</span>
+              <span class="character-photo-value" id="character-photo-registered">Jugador Equipo</span>
             </div>
             <div class="character-photo-row">
               <span class="character-photo-label">Personaje</span>
-              <span class="character-photo-value" id="character-photo-character">—</span>
+              <span class="character-photo-value" id="character-photo-character">Orange</span>
             </div>
           </div>
         </section>
@@ -87,17 +92,22 @@
           <ul class="conventions-list">
             <li><span class="convention-key">↑↓←→</span><span>Moverte por la grilla</span></li>
             <li><span class="convention-key">WASD</span><span>Moverte por la grilla</span></li>
-            <li><span class="convention-key">X</span><span>Atacar las casillas colindantes</span></li>
-            <li><span class="convention-key">C</span><span>Bloquear un ataque</span></li>
+            <li><span class="convention-key">X</span><span>Lanzar balón(es) atrapado(s)</span></li>
+            <li><span class="convention-swatch pickup-swatch pickup-swatch-amarillo"></span><span>Balón ovalado amarillo · 7 puntos</span></li>
+            <li><span class="convention-swatch pickup-swatch pickup-swatch-blanco"></span><span>Balón circular blanco · 5 puntos</span></li>
+            <li><span class="convention-swatch swatch-white-middle"></span><span>Línea de área · LA</span></li>
+            <li><span class="convention-key">O</span><span>Marcar O</span></li>
+            <li><span class="convention-key">ESP</span><span>Pintar</span></li>
           </ul>
         </section>
       </aside>
 
-      <div class="reward-modal" id="elimination-modal" hidden role="alertdialog" aria-label="Eliminado de la cancha">
+      <div class="reward-modal" id="reward-modal" hidden role="alertdialog" aria-label="Recompensa ganada">
         <div class="reward-modal-box">
-          <span class="reward-modal-icon">💀</span>
-          <span class="reward-modal-title">¡Te eliminaron!</span>
-          <span class="reward-modal-sub" id="elimination-modal-sub"></span>
+          <span class="reward-modal-icon">🏆</span>
+          <span class="reward-modal-title">¡Has ganado una recompensa!</span>
+          <span class="reward-modal-sub" id="reward-modal-sub"></span>
+          <button type="button" class="reward-modal-close" id="reward-modal-close">Continuar</button>
         </div>
       </div>
 
@@ -105,16 +115,14 @@
         <span id="zone-number">—</span>
         <span id="zone-coords">Fila — · Columna —</span>
         <span id="zone-desc">—</span>
-        <span id="minimap-zone">ZONA — / 70</span>
+        <span id="visited-count">0 / 108</span>
+        <span id="minimap-zone">ZONA — / 108</span>
         <span id="minimap-coords">Fila — · Columna —</span>
         <button type="button" id="minimap" hidden aria-label="Minimapa"></button>
         <span id="minimap-location"></span>
         <span id="minimap-players"></span>
       </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="../assets/js/game-client.js"></script>
-  <script src="../assets/js/musica-fondo.js"></script>
-  <script src="../assets/js/script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
